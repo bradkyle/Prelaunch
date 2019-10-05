@@ -1,5 +1,6 @@
 import uuid
-from pymongo import MongoClient
+from rethinkpool import RethinkPool
+
 import datetime
 from flask import Flask, jsonify
 from flasgger import Swagger
@@ -63,17 +64,46 @@ class User():
 
 class App():
     def __init__(self, *args, **kwargs):
-        self.client = MongoClient('localhost', 27017)
+        self.pool = RethinkPool(
+            max_conns=self.max_conns,
+            initial_conns=self.initial_conns,
+            get_timeout=self.get_timeout,
+            host=self.host,
+            port=self.port,
+            username=self.username,
+            password=self.password
+        )
 
+        # Create database tables and indicies where needed
+        with self.pool.get_resource() as res:
+            pass
 
     def create_user(self):
         """
-        Creates a user and adds this user to the mongodb database
+        Creates a user and adds this user to the mongodb database provided
+        all validations have been successfull and then sends a referral email
+        via sendgrid such that the campaign is propagated.
         """
         pass
 
     def create_user_from_referral(self):
+        """
+        Creates a user and increments the referrer user's referral count 
+        after having successfully called the above create user function.
+        """
         pass
+
+    def udpate_user(self):
+        with self.pool.get_resource() as res:
+            pass
+
+    def get_top_users_by_rank(self):
+        with self.pool.get_resource() as res:
+            pass
+
+    def get_all_users(self):
+        with self.pool.get_resource() as res:
+            pass
 
 app = App()
 
@@ -148,14 +178,14 @@ def handle_invalid_usage(error):
 @app.route('/v1/user/', methods=['POST'])
 def user_create():
     """
-    Create an instance of the specified environment
+    Create an user
     Parameters:
-        - env_id: gym environment ID string, such as 'CartPole-v0'
-        - seed: set the seed for this env's random number generator(s).
+        - user_email: user email string, such as 'example@email.com'
+        - referrer_id: the id of the user that referred this person.
     Returns:
-        - instance_id: a short identifier (such as '3c657dbc')
-        for the created environment instance. The instance_id is
-        used in future API calls to identify the environment to be
+        - user_id: a short identifier (such as '3c657dbc')
+        for the created user instance. The user_id is
+        used in future API calls to identify the user to be
         manipulated
     """
     req = request.get_json()
