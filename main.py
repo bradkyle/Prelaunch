@@ -12,6 +12,14 @@ import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
+def _error():
+    pass
+
+def _info():
+    pass
+
+def _debug():
+    pass
 
 # Logging #TODO update
 # ===================================================>
@@ -36,6 +44,18 @@ class Referral():
     def __init__(self):
         pass
 
+class Language(Enum):
+    ENGLISH = 1
+    MANDARIN = 2
+    RUSSIAN = 3
+    KOREAN = 4
+    JAPANESE = 5
+    SPANISH = 6
+    FRENCH = 7
+    HINDI = 8
+    ARABIC = 9
+    BENGALI = 10
+
 class User():
     def __init__(self, **kwargs):
         self.id = uuid.uuid1()
@@ -52,6 +72,7 @@ class User():
         self.country = kwargs.get('country', None)
         self.region = kwargs.get('region', None)
         self.cookies = kwargs.get('cookies', None)
+        self.email_sent = kwargs.get('email_sent', False)
         self.created_at = datetime.datetime.utcnow()
 
     def inc(self):
@@ -83,7 +104,7 @@ class App():
 
         # SendGrid API client
         self.sg = SendGridAPIClient(
-            os.environ.get('SENDGRID_API_KEY')
+            self.sendgrid_api_key
         )
 
         # Rethinkdb connection pool
@@ -159,7 +180,7 @@ class App():
         with self.pool.get_resource() as res:
             pass
 
-    def send_referral_mail(self, to_email):
+    def send_referral_mail(self, user):
         #TODO multiple languages
 
         message = Mail(
@@ -171,15 +192,17 @@ class App():
 
         try: #TODO logging + time
             response = self.sg.send(message)
-            print(response.status_code)
-            print(response.body)
-            print(response.headers)
+            if response.status_code==200:
+                self.udpate_user(user, email_sent=True)
+                _info("email successfully sent to user: {email}".format(
+                    email=user.email
+                ))
         except Exception as e:
-            print(e.message)
+                _error("Email was not sent to user: {email}".format(
+                    email=user.email
+                ), e)
 
-    
 app = App()
-
 
 # General utilities
 # ===================================================>
