@@ -65,7 +65,7 @@ class User():
         self.referrer_id = kwargs.get('referrer_id', None)
         self.referral_source = kwargs.get('referral_source', None)
         self.referral_url = kwargs.get('referral_url', None)
-        self.num_referred = kwargs.get('num_referred', 0)
+        self.referrals = kwargs.get('referrals', 0)
         self.ip_address = kwargs.get('ip_address', None)
         self.user_agent = kwargs.get('user_agent', None)
         self.language = kwargs.get('language', None)
@@ -74,16 +74,6 @@ class User():
         self.cookies = kwargs.get('cookies', None)
         self.email_sent = kwargs.get('email_sent', False)
         self.created_at = datetime.datetime.utcnow()
-
-    def inc(self):
-        """
-        Increments the number of people this person has referred by one.
-        """
-        self.num_referred += 1
-
-    def update(self):
-        pass
-
 
 
 
@@ -99,8 +89,8 @@ class App():
         self.rdb_timeout = 0
         self.rdb_max_conns = 0
         self.rdb_initial_conns = 0
-        self.rdb_table_name = 0
-        self.rdb_db_name = 0
+        self.rdb_table = 0
+        self.rdb_db = 0
 
         # SendGrid API client
         self.sg = SendGridAPIClient(
@@ -120,6 +110,8 @@ class App():
 
         self._setup()
 
+        self.uref =  r.db(self.rdb_db).table(self.rdb_table)
+
     def _setup(self):
         """
         Create database tables and indicies where needed
@@ -127,7 +119,7 @@ class App():
         with self.pool.get_resource() as res:
             pass
 
-    def create_user(self):
+    def create_user(self, user):
         """
         Creates a user and adds this user to the mongodb database provided
         all validations have been successfull and then sends a referral email
@@ -135,20 +127,29 @@ class App():
         """
         with self.pool.get_resource() as res:
             pass
+        self.incriment_user_referrals(user.)
 
     def incriment_user_referrals(self, user_id):
         """
         Increments the users total referral count by one and then updates that
         user in the database.
         """
-        pass
+        with self.pool.get_resource() as res:
+           self.uref\
+           .filter({"id": user_id})\
+           .update({"referrals": r.row["referrals"]+1})\
+           .run(res)
 
-    def create_user_from_referral(self):
+    def incriment_referral_views(self, user_id):
         """
-        Creates a user and increments the referrer user's referral count 
-        after having successfully called the above create user function.
+        Increments the users total referral count by one and then updates that
+        user in the database.
         """
-        pass
+        with self.pool.get_resource() as res:
+           self.uref\
+           .filter({"id": user_id})\
+           .update({"views": r.row["views"]+1})\
+           .run(res)
 
     def udpate_user(self):
         """
@@ -163,15 +164,19 @@ class App():
         Get's a list of the top users ordered by rank with a limit given by 
         num.
         """
-        with self.pool.get_resource() as res:
-            pass
+        with self.pool.get_resource() as res: #TODO internal server error
+            self.uref\
+            .order_by(index="referrals")\
+            .run(res)
 
     def get_user_rank(self, user_id):
         """
-        Derives the rank of a given user id.
+        Derives the rank of a given user id. #TODO update to allow for rank 
         """
         with self.pool.get_resource() as res:
-            pass
+            self.uref\
+            .filter({"id": user_id})\
+            .run(res)
 
     def get_all_users(self):
         """
@@ -267,24 +272,14 @@ def user_create():
     user_email = get_required_param(req, 'user_email')
     referrer_id = get_optional_param(req, 'referrer_id', None)
     
-    if referrer_id is not None:
-        """
-        Creates user and then increments the user whom was the
-        refferrer of this user. Then sends an email to this person.
-        """
-        resp = app.create_user_from_referral(
-            email=user_email,
-            referrer_id=referrer_id
-        )
-
-    else:
-        """
-        Creates a user and sends a email with referral details to 
-        this person.
-        """
-        resp = app.create_user(
-            email=user_email
-        )
+    """
+    Creates a user and sends a email with referral details to 
+    this person.
+    """
+    resp = app.create_user(
+        email=user_email,
+        referrer_id=referrer_id
+    )
 
     return jsonify(user_id=resp["user_id"])
 
@@ -310,7 +305,9 @@ def update_user(user_id):
     action = get_required_param(json, 'action')
     render = get_optional_param(json, 'render', False)
 
-    resp = app.update_user()
+    resp = app.update_user(
+
+    )
     
     return jsonify(user_id=resp["user_id"])
 
@@ -329,7 +326,7 @@ def user_list_by_rank(limit):
 # ---------------------------------------------------->
 
 @app.route('/v1/users/', methods=['GET'])
-def referral_opened():
+def referral_viewed():
     """
     Marks a referral as being openend and recieves the source
     from where it was opened.
