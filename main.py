@@ -64,6 +64,24 @@ class User():
 
 class App():
     def __init__(self, *args, **kwargs):
+
+        self.sendgrid_api_key = 0
+        self.rdb_username = 0
+        self.rdb_password = 0
+        self.rdb_host = 0
+        self.rdb_port = 0
+        self.rdb_timeout = 0
+        self.rdb_max_conns = 0
+        self.rdb_initial_conns = 0
+        self.rdb_table_name = 0
+        self.rdb_db_name = 0
+
+        # SendGrid API client
+        self.sg = SendGridAPIClient(
+            os.environ.get('SENDGRID_API_KEY')
+        )
+
+        # Rethinkdb connection pool
         self.pool = RethinkPool(
             max_conns=self.max_conns,
             initial_conns=self.initial_conns,
@@ -74,7 +92,12 @@ class App():
             password=self.password
         )
 
-        # Create database tables and indicies where needed
+        self._setup()
+
+    def _setup(self):
+        """
+        Create database tables and indicies where needed
+        """
         with self.pool.get_resource() as res:
             pass
 
@@ -83,6 +106,14 @@ class App():
         Creates a user and adds this user to the mongodb database provided
         all validations have been successfull and then sends a referral email
         via sendgrid such that the campaign is propagated.
+        """
+        with self.pool.get_resource() as res:
+            pass
+
+    def incriment_user_referrals(self, user_id):
+        """
+        Increments the users total referral count by one and then updates that
+        user in the database.
         """
         pass
 
@@ -94,24 +125,36 @@ class App():
         pass
 
     def udpate_user(self):
+        """
+        Validates then updates a specific users details then reinserts that 
+        user back into the database.
+        """
         with self.pool.get_resource() as res:
             pass
 
-    def get_top_users_by_rank(self):
+    def get_users_by_rank(self, num, asc=False):
+        """
+        Get's a list of the top users ordered by rank with a limit given by 
+        num.
+        """
+        with self.pool.get_resource() as res:
+            pass
+
+    def get_user_rank(self, user_id):
+        """
+        Derives the rank of a given user id.
+        """
         with self.pool.get_resource() as res:
             pass
 
     def get_all_users(self):
+        """
+        Returns a list of all of the users.
+        """
         with self.pool.get_resource() as res:
             pass
 
-app = App()
-
-# Email utilities
-# ===================================================>
-#TODO multiple languages
-
-def send_referral_mail(to_email, ):
+    def send_referral_mail(to_email, ):
     message = Mail(
         from_email=os.environ.get('FROM_EMAIL'),
         to_emails='to@example.com',
@@ -120,13 +163,20 @@ def send_referral_mail(to_email, ):
     )
 
     try:
-        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
         response = sg.send(message)
         print(response.status_code)
         print(response.body)
         print(response.headers)
     except Exception as e:
         print(e.message)
+
+    
+app = App()
+
+# Email utilities
+# ===================================================>
+#TODO multiple languages
+
 
 
 # General utilities
