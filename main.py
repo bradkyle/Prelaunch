@@ -60,11 +60,16 @@ class User():
         """
         self.num_referred += 1
 
+    def update(self):
+        pass
+
+
 
 
 class App():
     def __init__(self, *args, **kwargs):
 
+        self.admin_email = 0
         self.sendgrid_api_key = 0
         self.rdb_username = 0
         self.rdb_password = 0
@@ -154,29 +159,26 @@ class App():
         with self.pool.get_resource() as res:
             pass
 
-    def send_referral_mail(to_email, ):
-    message = Mail(
-        from_email=os.environ.get('FROM_EMAIL'),
-        to_emails='to@example.com',
-        subject='Thanks, we have added your email address to the signup queue.',
-        html_content='<strong>and easy to do anywhere, even with Python</strong>'
-    )
+    def send_referral_mail(self, to_email):
+        #TODO multiple languages
 
-    try:
-        response = sg.send(message)
-        print(response.status_code)
-        print(response.body)
-        print(response.headers)
-    except Exception as e:
-        print(e.message)
+        message = Mail(
+            from_email=self.admin_email,
+            to_emails=to_email,
+            subject='Thanks, we have added your email address to the signup queue.',
+            html_content='<strong>and easy to do anywhere, even with Python</strong>'
+        )
+
+        try: #TODO logging + time
+            response = self.sg.send(message)
+            print(response.status_code)
+            print(response.body)
+            print(response.headers)
+        except Exception as e:
+            print(e.message)
 
     
 app = App()
-
-# Email utilities
-# ===================================================>
-#TODO multiple languages
-
 
 
 # General utilities
@@ -284,36 +286,21 @@ def update_user(user_id):
     json = request.get_json()
     action = get_required_param(json, 'action')
     render = get_optional_param(json, 'render', False)
-    [obs_jsonable, reward, done, info] = envs.step(instance_id, action, render)
-    return jsonify(observation = obs_jsonable,
-                    reward = reward, done = done, info = info)
+
+    resp = app.update_user()
+    
+    return jsonify(user_id=resp["user_id"])
 
 # Update user
 # ---------------------------------------------------->
 
-@app.route('/v1/users/', methods=['GET'])
-def user_list_top_by_rank(number):
+@app.route('/v1/users/<limit>', methods=['GET'])
+def user_list_by_rank(limit):
     """
-    List all environments running on the server
-    Returns:
-        - envs: dict mapping instance_id to env_id
-        (e.g. {'3c657dbc': 'CartPole-v0'}) for every env
-        on the server
+    List all users on the server.
     """
-    all_envs = envs.list_all()
-    return jsonify(all_envs = all_envs)
-
-@app.route('/v1/users/', methods=['GET'])
-def user_list_all_by_rank():
-    """
-    List all environments running on the server
-    Returns:
-        - envs: dict mapping instance_id to env_id
-        (e.g. {'3c657dbc': 'CartPole-v0'}) for every env
-        on the server
-    """
-    all_envs = envs.list_all()
-    return jsonify(all_envs = all_envs)
+    users = app.get_users_by_rank(limit)
+    return jsonify(users = users)
 
 # Update referral
 # ---------------------------------------------------->
@@ -321,11 +308,8 @@ def user_list_all_by_rank():
 @app.route('/v1/users/', methods=['GET'])
 def referral_opened():
     """
-    List all environments running on the server
-    Returns:
-        - envs: dict mapping instance_id to env_id
-        (e.g. {'3c657dbc': 'CartPole-v0'}) for every env
-        on the server
+    Marks a referral as being openend and recieves the source
+    from where it was opened.
     """
     all_envs = envs.list_all()
     return jsonify(all_envs = all_envs)
