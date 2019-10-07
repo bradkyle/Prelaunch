@@ -1,5 +1,7 @@
 import falcon
 import yaml
+from apispec import APISpec
+from falcon_apispec import FalconPlugin
 
 from .api import MyAPI
 from .users import Users
