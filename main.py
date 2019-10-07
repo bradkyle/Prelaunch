@@ -11,6 +11,7 @@ logger.setLevel(logging.DEBUG)
 import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+import argparse
 
 def _error():
     pass
@@ -75,22 +76,20 @@ class User():
         self.email_sent = kwargs.get('email_sent', False)
         self.created_at = datetime.datetime.utcnow()
 
-
-
-class App():
+class Core():
     def __init__(self, *args, **kwargs):
 
-        self.admin_email = 0
-        self.sendgrid_api_key = 0
-        self.rdb_username = 0
-        self.rdb_password = 0
-        self.rdb_host = 0
-        self.rdb_port = 0
-        self.rdb_timeout = 0
-        self.rdb_max_conns = 0
-        self.rdb_initial_conns = 0
-        self.rdb_table = 0
-        self.rdb_db = 0
+        self.admin_email = kwargs.get('email', None)
+        self.sendgrid_api_key = kwargs.get('email', None)
+        self.rdb_username = kwargs.get('email', None)
+        self.rdb_password = kwargs.get('email', None)
+        self.rdb_host = kwargs.get('email', None)
+        self.rdb_port = kwargs.get('email', None)
+        self.rdb_timeout = kwargs.get('email', None)
+        self.rdb_max_conns = kwargs.get('email', None)
+        self.rdb_initial_conns = kwargs.get('email', None)
+        self.rdb_table = kwargs.get('email', None)
+        self.rdb_db = kwargs.get('email', None)
 
         # SendGrid API client
         self.sg = SendGridAPIClient(
@@ -112,6 +111,9 @@ class App():
 
         self.uref =  r.db(self.rdb_db).table(self.rdb_table)
 
+    def _rethink(self):
+        pass
+
     def _setup(self):
         """
         Create database tables and indicies where needed
@@ -126,8 +128,7 @@ class App():
         via sendgrid such that the campaign is propagated.
         """
         with self.pool.get_resource() as res:
-            pass
-        self.incriment_user_referrals(user.)
+            self.incriment_user_referrals(user.referrer_id)
 
     def incriment_user_referrals(self, user_id):
         """
@@ -151,13 +152,16 @@ class App():
            .update({"views": r.row["views"]+1})\
            .run(res)
 
-    def udpate_user(self):
+    def udpate_user(self, user):
         """
         Validates then updates a specific users details then reinserts that 
         user back into the database.
         """
         with self.pool.get_resource() as res:
-            pass
+            self.uref\
+           .filter({"id": user.id})\
+           .update(user.to_record())\
+           .run(res)
 
     def get_users_by_rank(self, num, asc=False):
         """
@@ -165,7 +169,7 @@ class App():
         num.
         """
         with self.pool.get_resource() as res: #TODO internal server error
-            self.uref\
+            return self.uref\
             .order_by(index="referrals")\
             .run(res)
 
@@ -174,7 +178,7 @@ class App():
         Derives the rank of a given user id. #TODO update to allow for rank 
         """
         with self.pool.get_resource() as res:
-            self.uref\
+            return self.uref\
             .filter({"id": user_id})\
             .run(res)
 
@@ -183,14 +187,14 @@ class App():
         Returns a list of all of the users.
         """
         with self.pool.get_resource() as res:
-            pass
+            return self.uref.run(res)
 
     def send_referral_mail(self, user):
         #TODO multiple languages
 
         message = Mail(
             from_email=self.admin_email,
-            to_emails=to_email,
+            to_emails=user.email,
             subject='Thanks, we have added your email address to the signup queue.',
             html_content='<strong>and easy to do anywhere, even with Python</strong>'
         )
@@ -207,7 +211,8 @@ class App():
                     email=user.email
                 ), e)
 
-app = App()
+app = Flask(__name__)
+core = Core()
 
 # General utilities
 # ===================================================>
@@ -276,7 +281,7 @@ def user_create():
     Creates a user and sends a email with referral details to 
     this person.
     """
-    resp = app.create_user(
+    resp = core.create_user(
         email=user_email,
         referrer_id=referrer_id
     )
@@ -305,7 +310,32 @@ def update_user(user_id):
     action = get_required_param(json, 'action')
     render = get_optional_param(json, 'render', False)
 
-    resp = app.update_user(
+    resp = core.update_user(
+
+    )
+    
+    return jsonify(user_id=resp["user_id"])
+
+@app.route('/v1/users/<user_id>/', methods=['POST'])
+def get_user_rank(user_id):
+    """
+    Run one timestep of the environment's dynamics.
+    Parameters:
+        - instance_id: a short identifier (such as '3c657dbc')
+        for the environment instance
+        - action: an action to take in the environment
+    Returns:
+        - observation: agent's observation of the current
+        environment
+        - reward: amount of reward returned after previous action
+        - done: whether the episode has ended
+        - info: a dict containing auxiliary diagnostic information
+    """
+    json = request.get_json()
+    action = get_required_param(json, 'action')
+    render = get_optional_param(json, 'render', False)
+
+    resp = core.update_user(
 
     )
     
@@ -319,7 +349,7 @@ def user_list_by_rank(limit):
     """
     List all users on the server.
     """
-    users = app.get_users_by_rank(limit)
+    users = core.get_users_by_rank(limit)
     return jsonify(users = users)
 
 # Update referral
@@ -331,5 +361,28 @@ def referral_viewed():
     Marks a referral as being openend and recieves the source
     from where it was opened.
     """
-    all_envs = envs.list_all()
+    all_envs = core.list_all()
     return jsonify(all_envs = all_envs)
+
+
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Start a Gym HTTP API server')
+    parser.add_argument('-l', '--listen', help='interface to listen to', default='127.0.0.1')
+    parser.add_argument('-p', '--port', default=5000, type=int, help='port to bind to')
+    parser.add_argument('-rp', '--rdb_port', default=5000, type=int, help='port to bind to')
+    parser.add_argument('-rh', '--rdb_host', default=5000, type=int, help='port to bind to')
+    parser.add_argument('-ru', '--rdb_username', default=5000, type=int, help='port to bind to')
+    parser.add_argument('-rp', '--rdb_password', default=5000, type=int, help='port to bind to')
+    parser.add_argument('-rt', '--rdb_timeout', default=5000, type=int, help='port to bind to')
+    parser.add_argument('-rmc', '--rdb_max_conns', default=5000, type=int, help='port to bind to')
+    parser.add_argument('-ric', '--rdb_initial_conns', default=5000, type=int, help='port to bind to')
+    parser.add_argument('-rtb', '--rdb_table', default=5000, type=int, help='port to bind to')
+    parser.add_argument('-rdb', '--rdb_db', default=5000, type=int, help='port to bind to')
+    args = parser.parse_args()
+    _info('Server starting at: ' + 'http://{}:{}'.format(args.listen, args.port))
+
+    core.config(**args)
+    app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+    app.run(host=args.listen, port=args.port)
