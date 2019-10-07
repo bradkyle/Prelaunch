@@ -5,25 +5,13 @@ import datetime
 from flask import Flask, jsonify
 from flasgger import Swagger
 import logging
-logger = logging.getLogger('werkzeug')
-logger.setLevel(logging.DEBUG)
 
 import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import argparse
 
-def _error(msg):
-    pass
 
-def _info(msg):
-    pass
-
-def _debug(msg):
-    pass
-
-def _warn(msg):
-    pass
 
 # Logging #TODO update
 # ===================================================>
@@ -50,39 +38,8 @@ class Referral():
     def __init__(self):
         pass
 
-class Language(Enum):
-    ENGLISH = 1
-    MANDARIN = 2
-    RUSSIAN = 3
-    KOREAN = 4
-    JAPANESE = 5
-    SPANISH = 6
-    FRENCH = 7
-    HINDI = 8
-    ARABIC = 9
-    BENGALI = 10
 
-class User():
-    def __init__(self, **kwargs):
-        self.id = uuid.uuid1()
-        self.email = kwargs.get('email', None)
-        self.name = kwargs.get('name', None)
-        self.surname = kwargs.get('surname', None)
-        self.referrer_id = kwargs.get('referrer_id', None)
-        self.referral_source = kwargs.get('referral_source', None)
-        self.referral_url = kwargs.get('referral_url', None)
-        self.referrals = kwargs.get('referrals', 0)
-        self.ip_address = kwargs.get('ip_address', None)
-        self.user_agent = kwargs.get('user_agent', None)
-        self.language = kwargs.get('language', None)
-        self.country = kwargs.get('country', None)
-        self.region = kwargs.get('region', None)
-        self.cookies = kwargs.get('cookies', None)
-        self.email_sent = kwargs.get('email_sent', False)
-        self.created_at = datetime.datetime.utcnow()
 
-    def to_record(self):
-        pass
 
 class UserResource():
     def __call__(self, *args, **kwargs):
@@ -122,71 +79,6 @@ class UserResource():
 
             self.uref =  r.db(self.rdb_db).table(self.rdb_user_table)
 
-    def _create_user(self, user):
-        """
-        Creates a user and adds this user to the mongodb database provided
-        all validations have been successfull and then sends a referral email
-        via sendgrid such that the campaign is propagated.
-        """
-        if user.referrer_id is not None:
-            self.incriment_user_referrals(user.referrer_id)
-
-        with self.conn as conn:
-            self.uref\
-            .insert(user.to_record())\
-            .run(conn)
-
-    def _incriment_user_referrals(self, user_id):
-        """
-        Increments the users total referral count by one and then updates that
-        user in the database.
-        """
-        with self.conn as conn:
-           self.uref\
-           .filter({"id": user_id})\
-           .update({"referrals": r.row["referrals"]+1})\
-           .run(conn)
-
-    def _incriment_referral_views(self, user_id):
-        """
-        Increments the users total referral count by one and then updates that
-        user in the database.
-        """
-        with self.conn as conn:
-           self.uref\
-           .filter({"id": user_id})\
-           .update({"views": r.row["views"]+1})\
-           .run(conn)
-
-    def _udpate_user(self, user):
-        """
-        Validates then updates a specific users details then reinserts that 
-        user back into the database.
-        """
-        with self.conn as conn:
-            self.uref\
-           .filter({"id": user.id})\
-           .update(user.to_record())\
-           .run(conn)
-
-    def _get_users_by_rank(self, num, asc=False):
-        """
-        Get's a list of the top users ordered by rank with a limit given by 
-        num.
-        """
-        with self.conn as conn: #TODO internal server error
-            return self.uref\
-            .order_by(index="referrals")\
-            .run(conn)
-
-    def _get_user_rank(self, user_id):
-        """
-        Derives the rank of a given user id. #TODO update to allow for rank 
-        """
-        with self.conn as conn:
-            return self.uref\
-            .filter({"id": user_id})\
-            .run(conn)
 
     def _get_all_users(self):
         """
@@ -195,27 +87,7 @@ class UserResource():
         with self.conn as conn:
             return self.uref.run(conn)
 
-    def _send_referral_mail(self, user):
-        #TODO multiple languages
-
-        message = Mail(
-            from_email=self.admin_email,
-            to_emails=user.email,
-            subject='Thanks, we have added your email address to the signup queue.',
-            html_content='<strong>and easy to do anywhere, even with Python</strong>'
-        )
-
-        try: #TODO logging + time
-            response = self.sg.send(message)
-            if response.status_code==200:
-                self.udpate_user(user, email_sent=True)
-                _info("email successfully sent to user: {email}".format(
-                    email=user.email
-                ))
-        except Exception as e:
-                _error("Email was not sent to user: {email}".format(
-                    email=user.email
-                ), e)
+    
 
 app = falcon.API()
 core = Core()
@@ -237,25 +109,6 @@ class InvalidUsage(Exception):
         rv['message'] = self.message
         return rv
 
-def get_required_param(json, param):
-    if json is None:
-        logger.info("Request is not a valid json")
-        raise InvalidUsage("Request is not a valid json")
-    value = json.get(param, None)
-    if (value is None) or (value=='') or (value==[]):
-        logger.info("A required request parameter '{}' had value {}".format(param, value))
-        raise InvalidUsage("A required request parameter '{}' was not provided".format(param))
-    return value
-
-def get_optional_param(json, param, default):
-    if json is None:
-        logger.info("Request is not a valid json")
-        raise InvalidUsage("Request is not a valid json")
-    value = json.get(param, None)
-    if (value is None) or (value=='') or (value==[]):
-        logger.info("An optional request parameter '{}' had value {} and was replaced with default value {}".format(param, value, default))
-        value = default
-    return value
 
 @app.errorhandler(InvalidUsage)
 def handle_invalid_usage(error):
