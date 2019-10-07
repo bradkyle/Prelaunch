@@ -38,3 +38,5 @@
 2019-10-07T06:10:42.008960275 7269.380262s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
 2019-10-07T06:16:04.708616489 7592.079918s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
 2019-10-07T06:16:04.711920412 7592.083222s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T07:18:33.203619397 11340.574922s warn: Some RethinkDB data on this server has been placed into swap memory. This may impact performance.
+2019-10-07T08:42:33.211954537 16380.583257s warn: Some RethinkDB data on this server has been placed into swap memory. This may impact performance.
