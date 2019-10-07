@@ -12,3 +12,27 @@
 2019-10-07T04:09:33.187489796 0.558792s notice: Listening on driver addresses: 127.0.0.1, 172.18.0.2
 2019-10-07T04:09:33.188017968 0.559320s notice: Listening on http addresses: 127.0.0.1, 172.18.0.2
 2019-10-07T04:09:33.188025139 0.559327s notice: Server ready, "6dfebe79dafc_z00" 0c39c56c-5f2e-49af-8758-3efbb6d1bd66
+2019-10-07T05:20:03.059517887 4230.430820s info: Table aa7b3fa5-eddd-4b62-889f-61bfde525811: Starting a new Raft election for term 1.
+2019-10-07T05:20:03.060035147 4230.431337s info: Table aa7b3fa5-eddd-4b62-889f-61bfde525811: Added replica on this server.
+2019-10-07T05:20:03.114952716 4230.486255s info: Table aa7b3fa5-eddd-4b62-889f-61bfde525811: This server is Raft leader for term 1. Latest log index is 0.
+2019-10-07T05:45:44.618888285 5771.990191s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Starting a new Raft election for term 1.
+2019-10-07T05:45:44.619382767 5771.990685s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Added replica on this server.
+2019-10-07T05:45:44.679527045 5772.050830s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: This server is Raft leader for term 1. Latest log index is 0.
+2019-10-07T05:45:45.565191353 5772.936494s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T05:47:17.602765411 5864.974067s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:04:17.238297114 6884.609599s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:04:17.241978490 6884.613280s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:05:06.366630555 6933.737933s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:05:06.370478900 6933.741781s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:05:39.159446103 6966.530748s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:05:39.163012397 6966.534314s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:07:27.292546421 7074.663848s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:07:27.296702652 7074.668004s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:08:36.114012549 7143.485314s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:08:36.117543791 7143.488845s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:09:21.254225843 7188.625528s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:09:21.257576347 7188.628878s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:10:05.940295077 7233.311597s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:10:05.944124889 7233.315427s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:10:42.005204959 7269.376507s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
+2019-10-07T06:10:42.008960275 7269.380262s info: Table dbf9c730-3fbe-4584-935f-4daf9df49cc2: Configuration is changing.
