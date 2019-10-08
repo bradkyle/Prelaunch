@@ -8,6 +8,10 @@
         padding-bottom: .25em;
         text-decoration: none;
       }
+      
+      p{
+      	line-height:19px;
+      }
 
       th, td{ 
 
@@ -26,20 +30,30 @@
       }
       
       .footr{
-      	height:250px
+      	height:250px;
+        background-position: center;
+      }
+      
+      .mjt{
+      	box-shadow:0px 0px 5px 1px white;
+      }
+      
+      body{
+      	padding-bottom:50px;
+      background:#f7f7f7
       }
     </mj-style>
     <mj-attributes>
       
     </mj-attributes>
-    <mj-font href="https://fonts.googleapis.com/css?family=Pacifico"/>
+    <mj-font name="Raleway" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
   </mj-head>
 
   <mj-body>
     
-    <mj-section padding-bottom="5px">
+    <mj-section padding-bottom="0px">
       <mj-column>
-      <mj-text align="center">
+      <mj-text align="center" color="#222222">
           <h1>
             Thank you! 
           </h1>
@@ -50,7 +64,7 @@
       </mj-column>
       
     </mj-section>
-    <mj-wrapper padding-bottom="5px" border-radius="5px" background-color="black" padding-top="0px">
+    <mj-wrapper css-class="wrpr" padding-bottom="5px" border-radius="5px" background-color="black" padding-top="0px">
 		<mj-section border-radius="5px" padding-top="35px" padding-bottom="5px" background-url="https://img.bafang.com/cdn/assets/imgs/MjAxOTU/4B1BF28498F423173F2920D131E28EDD.png" background-size="cover" >
       <mj-column>
         <mj-text align="center" color="white">
@@ -64,10 +78,10 @@
         <mj-divider border-width="1px" border-style="dashed" border-color="lightgrey"/>
         <mj-text align="center" color="white" padding-bottom="30px" padding-top="25px">
           <h1>
-						Become a rain maker
+						Get rewarded
           </h1>
         	<p>
-              Get early access and commmission by referring your friends. The more friends that join, the sooner you'll get access.
+              Get early access and commmission by referring your friends. The more friends that join, the sooner you'll get access and the more commission you'll earn per trade when we go live.
           </p>
       </mj-text>
         <mj-table color="white" css-class="tbl" >
@@ -113,9 +127,9 @@
          </mj-button>
       </mj-column>
     </mj-section>
-    <mj-section css-class="footr" background-url="https://brex.com/static/planet-958a41d34aa478860ee108978fcd26b4.png" background-size="cover">
+    <mj-section padding-bottom="0px">
       <mj-column>
-      <mj-text align="center" color="white" padding-top="0px" padding-bottom="100px">
+      <mj-text align="center" color="white" padding-top="0px" padding-bottom="20px">
           <h2>
 						Or share this unique link
           </h2>
@@ -127,6 +141,16 @@
       </mj-text>
       </mj-column>
     </mj-section>
+      <mj-section css-class="footr"  background-url="https://brex.com/static/planet-958a41d34aa478860ee108978fcd26b4.png" background-size="cover" background-repeat="no-repeat">
+      
+        
+        <mj-column padding-top="10px">
+        <mj-divider border-width="1px" border-style="dashed" border-color="lightgrey"/>
+        <mj-button background-color="none" color="white" width="100%" >
+          Monitor your progress
+         </mj-button>
+      </mj-column>
+      </mj-section>
     </mj-wrapper>
   </mj-body>
 </mjml>
