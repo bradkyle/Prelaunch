@@ -45,3 +45,13 @@
 2019-10-09T02:19:33.500724286 166200.872027s warn: Some RethinkDB data on this server has been placed into swap memory. This may impact performance.
 2019-10-09T06:35:33.528256311 181560.899558s warn: Some RethinkDB data on this server has been placed into swap memory. This may impact performance.
 2019-10-09T07:53:33.535451269 186240.906753s warn: Some RethinkDB data on this server has been placed into swap memory. This may impact performance.
+2019-10-09T11:44:33.554140194 200100.925444s warn: Some RethinkDB data on this server has been placed into swap memory. This may impact performance.
+2019-10-09T15:12:33.728454513 212581.136022s warn: Some RethinkDB data on this server has been placed into swap memory. This may impact performance.
+2019-10-09T17:10:33.576729014 219660.948031s warn: Some RethinkDB data on this server has been placed into swap memory. This may impact performance.
+2019-10-10T06:06:33.704366996 266221.075670s warn: Some RethinkDB data on this server has been placed into swap memory. This may impact performance.
+2019-10-10T07:28:33.782837898 271141.154142s warn: Some RethinkDB data on this server has been placed into swap memory. This may impact performance.
+2019-10-10T09:36:56.892077270 278844.263379s notice: Server got SIGTERM from pid 0, uid 0; shutting down...
+2019-10-10T09:36:58.249439015 278845.620742s notice: Shutting down client connections...
+2019-10-10T09:36:58.430581618 278845.801884s notice: All client connections closed.
+2019-10-10T09:36:58.430615821 278845.801918s notice: Shutting down storage engine... (This may take a while if you had a lot of unflushed data in the writeback cache.)
+2019-10-10T09:37:14.009763564 278861.381066s notice: Storage engine shut down.
