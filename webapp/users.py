@@ -4,7 +4,11 @@ r = RethinkDB()
 from .json_encoder import DatetimeJsonEncoder
 from .response import ok
 from .rethinkdb import RethinkResource
-from .util import _error, _info, _debug, _warning
+from marshmallow import Schema, fields
+from enum import Enum
+import uuid
+from datetime import datetime
+
 
 class Language(Enum):
     ENGLISH = 1
@@ -20,14 +24,14 @@ class Language(Enum):
 
 class User():
     def __init__(self, **kwargs):
-        self.id = uuid.uuid1()
+        self.uid = uuid.uuid1()
         self.email = kwargs.get('email', None)
         self.name = kwargs.get('name', None)
         self.surname = kwargs.get('surname', None)
         self.referrer_id = kwargs.get('referrer_id', None)
         self.referral_source = kwargs.get('referral_source', None)
         self.referral_url = kwargs.get('referral_url', None)
-        self.referrals = kwargs.get('referrals', 0)
+        self.referrals_count = kwargs.get('referrals', 0)
         self.ip_address = kwargs.get('ip_address', None)
         self.user_agent = kwargs.get('user_agent', None)
         self.language = kwargs.get('language', None)
@@ -35,7 +39,29 @@ class User():
         self.region = kwargs.get('region', None)
         self.cookies = kwargs.get('cookies', None)
         self.email_sent = kwargs.get('email_sent', False)
-        self.created_at = datetime.datetime.utcnow()
+        self.created_at = datetime.utcnow()
+
+    @staticmethod
+    def schema():
+        class UserSchema(Schema):
+            uid = fields.Str(required=True)
+            email = fields.Email(required=True)
+            ip_address = fields.Str(required=True)
+            name = fields.Str()
+            surname = fields.Str()
+            referrer_id = fields.Str()
+            referral_source = fields.Str()
+            referral_url = fields.Str()
+            referrals_count = fields.Int()
+            ip_address = fields.Str()
+            user_agent = fields.Str()
+            language = fields.Int()
+            country = fields.Str()
+            region = fields.Str()
+            cookies = fields.Str()
+            email_sent = fields.Boolean()
+            created_at = fields.DateTime()
+        return UserSchema
 
     @property
     def was_referred(self):
@@ -180,10 +206,34 @@ class Users(RethinkResource):
                 ), e)
 
     def on_get(self, req, resp):
+        """A cute furry animal endpoint.
+        ---
+        description: Get a random pet
+        responses:
+            200:
+                description: A pet to be returned
+                schema: UserSchema
+        """
         resp.body = self.encode(self.get_table())
 
     def on_post(self, req, resp):
+        """A cute furry animal endpoint.
+        ---
+        description: Get a random pet
+        responses:
+            200:
+                description: A pet to be returned
+                schema: UserSchema
+        """
         resp.body = self.encode(self.get_table())
 
     def on_put(self, req, resp):
+        """A cute furry animal endpoint.
+        ---
+        description: Get a random pet
+        responses:
+            200:
+                description: A pet to be returned
+                schema: UserSchema
+        """
         resp.body = self.encode(self.get_table())

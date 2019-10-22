@@ -46,7 +46,7 @@ def create_app(config_filename=None):
 
     # Create an APISpec
     spec = APISpec(
-        title='Swagger Petstore',
+        title='Swagger Prelaunch Spec',
         version='1.0.0',
         openapi_version='2.0',
         plugins=[
@@ -56,11 +56,10 @@ def create_app(config_filename=None):
     )
 
     # Register entities and paths
-    spec.components.schema('User', schema=User)
-    spec.components.schema('Card', schema=Card)
+    spec.components.schema('User', schema=User.schema())
+    spec.components.schema('Card', schema=Card.schema())
 
     spec.path(resource=user_resource)
     spec.path(resource=card_resource)
 
-
-    return app
+    return app, spec

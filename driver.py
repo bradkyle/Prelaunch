@@ -1,6 +1,6 @@
 from webapp import create_app
 
-app = create_app("conf/config.yml")
+app, _ = create_app("conf/config.yml")
 
 if __name__ == "__main__":
     from wsgiref import simple_server

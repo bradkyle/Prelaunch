@@ -4,7 +4,11 @@ r = RethinkDB()
 from .json_encoder import DatetimeJsonEncoder
 from .response import ok
 from .rethinkdb import RethinkResource
-from .util import _error, _info, _debug, _warning
+from marshmallow import Schema, fields
+from enum import Enum
+import uuid
+from datetime import datetime
+
 
 class Language(Enum):
     ENGLISH = 1
@@ -18,9 +22,9 @@ class Language(Enum):
     ARABIC = 9
     BENGALI = 10
 
-class User():
+class Card():
     def __init__(self, **kwargs):
-        self.id = uuid.uuid1()
+        self.uid = uuid.uuid1()
         self.email = kwargs.get('email', None)
         self.name = kwargs.get('name', None)
         self.surname = kwargs.get('surname', None)
@@ -29,13 +33,35 @@ class User():
         self.referral_url = kwargs.get('referral_url', None)
         self.referrals = kwargs.get('referrals', 0)
         self.ip_address = kwargs.get('ip_address', None)
-        self.user_agent = kwargs.get('user_agent', None)
+        self.card_agent = kwargs.get('card_agent', None)
         self.language = kwargs.get('language', None)
         self.country = kwargs.get('country', None)
         self.region = kwargs.get('region', None)
         self.cookies = kwargs.get('cookies', None)
         self.email_sent = kwargs.get('email_sent', False)
-        self.created_at = datetime.datetime.utcnow()
+        self.created_at = datetime.utcnow()
+
+    @staticmethod
+    def schema():
+        class CardSchema(Schema):
+            uid = fields.Str(required=True)
+            email = fields.Email(required=True)
+            ip_address = fields.Str(required=True)
+            name = fields.Str()
+            surname = fields.Str()
+            referrer_id = fields.Str()
+            referral_source = fields.Str()
+            referral_url = fields.Str()
+            referrals_count = fields.Int()
+            ip_address = fields.Str()
+            card_agent = fields.Str()
+            language = fields.Int()
+            country = fields.Str()
+            region = fields.Str()
+            cookies = fields.Str()
+            email_sent = fields.Boolean()
+            created_at = fields.DateTime()
+        return CardSchema
 
     @property
     def was_referred(self):
@@ -51,11 +77,10 @@ class User():
     def to_sanitized(self):
         pass
 
-
-class Users(RethinkResource):
+class Cards(RethinkResource):
     def __init__(self, *args, **kwargs):
         RethinkResource.__init__(self, *args, **kwargs)
-        self._table_name = "users"
+        self._table_name = "cards"
         self.factory.create_table(self._table_name, ["epoch_datetime"])
         self.json_encoder = DatetimeJsonEncoder()
         self.table_ref = r.table(self._table_name)
@@ -70,63 +95,61 @@ class Users(RethinkResource):
         with self.conn as conn:
             return dict(self.table_ref.run(conn))
 
-    def _incriment_user_referrals(self, user_id):
+    def _incriment_card_referrals(self, card_id):
         """
-        Increments the users total referral count by one and then updates that
-        user in the database.
-        Used when creating a new user, if that new user was referred by someone
-        then the refferer's referral count will be incremented.
+        Increments the cards total referral count by one and then updates that
+        card in the database.
         """
         with self.conn as conn:
            self.table_ref\
-           .filter({"id": user_id})\
+           .filter({"id": card_id})\
            .update({"referrals": r.row["referrals"]+1})\
            .run(conn)
 
-    def _user_exists(self, user):
+    def _card_exists(self, card):
         """
-        Returns true if the user email is located in the database else returns false.
+        Returns true if the card email is located in the database else returns false.
         """
         pass
 
-    def _create_user(self, user):
+    def _create_card(self, card):
         """
-        Checks to see if the user already exists, and throws error if it
+        Checks to see if the card already exists, and throws error if it
         does, else
-        Creates a user and adds this user to the database provided
+        Creates a card and adds this card to the database provided
         all validations have been successfull and then sends a referral email
         via sendgrid such that the campaign is propagated.
-        Checks if the user was referred by another user and increments that
+        Checks if the card was referred by another card and increments that
         referrers referral count.
         """
-        if not self._user_exists(user):
-            if user.was_referred:
-                self._incriment_user_referrals(user.referrer_id)
+        if not self._card_exists(card):
+            if card.was_referred:
+                self._incriment_card_referrals(card.referrer_id)
 
             with self.conn as conn:
                 self.table_ref\
-                .insert(user.to_record())\
+                .insert(card.to_record())\
                 .run(conn)
         else:
             pass #TODO throw error
 
-    def _udpate_user(self, user):
+    def _udpate_card(self, card):
         """
-        Validates then updates a specific users details then reinserts that 
-        user back into the database.
+        Validates then updates a specific cards details then reinserts that 
+        card back into the database.
         """
-        if self._user_exists(user):
+        if self._card_exists(card):
             with self.conn as conn:
                 self.table_ref\
-                .filter({"id": user.id})\
-                .update(user.to_record())\
+                .filter({"id": card.id})\
+                .update(card.to_record())\
                 .run(conn)
         else:
             pass #TODO throw error
 
-    def _get_users_by_rank(self, num=None, asc=False):
+    def _get_cards_by_rank(self, num=None, asc=False):
         """
-        Get's a list of the top users ordered by rank with a limit given by 
+        Get's a list of the top cards ordered by rank with a limit given by 
         num.
         """
 
@@ -145,45 +168,47 @@ class Users(RethinkResource):
                 .order_by(oby)\
                 .run(conn)
 
-    def _get_user_rank(self, user):
+    def _get_card_rank(self, card):
         """
-        Derives the rank of a given user id. #TODO update to allow for rank 
+        Derives the rank of a given card id. #TODO update to allow for rank 
         """
-        if self._user_exists(user):
+        if self._card_exists(card):
             with self.conn as conn:
                 return self.uref\
-                .filter({"id": user.id})\
+                .filter({"id": card.id})\
                 .run(conn)
         else:
             pass # TODO raise error
 
-    def _send_referral_mail(self, user):
-        #TODO multiple languages
-
-        message = Mail(
-            from_email=self.admin_email,
-            to_emails=user.email,
-            subject='Thanks, we have added your email address to the signup queue.',
-            html_content='<strong>and easy to do anywhere, even with Python</strong>'
-        )
-
-        try: #TODO logging + time
-            response = self.sg.send(message)
-            if response.status_code==200:
-                self.udpate_user(user, email_sent=True)
-                _info("email successfully sent to user: {email}".format(
-                    email=user.email
-                ))
-        except Exception as e:
-                _error("Email was not sent to user: {email}".format(
-                    email=user.email
-                ), e)
-
     def on_get(self, req, resp):
+        """A cute furry animal endpoint.
+        ---
+        description: Get a random pet
+        responses:
+            200:
+                description: A pet to be returned
+                schema: CardSchema
+        """
         resp.body = self.encode(self.get_table())
 
     def on_post(self, req, resp):
+        """A cute furry animal endpoint.
+        ---
+        description: Get a random pet
+        responses:
+            200:
+                description: A pet to be returned
+                schema: CardSchema
+        """
         resp.body = self.encode(self.get_table())
 
     def on_put(self, req, resp):
+        """A cute furry animal endpoint.
+        ---
+        description: Get a random pet
+        responses:
+            200:
+                description: A pet to be returned
+                schema: CardSchema
+        """
         resp.body = self.encode(self.get_table())
