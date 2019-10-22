@@ -4,9 +4,14 @@ from apispec import APISpec
 from falcon_apispec import FalconPlugin
 
 from .api import MyAPI
-from .users import Users
+from .users import Users, User
+from .cards import Cards, Card
 from .default_config import default_config
 from .rethinkdb import RethinkDBFactory
+from falcon_apispec import FalconPlugin
+from marshmallow import Schema, fields
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
 
 index_names = ["epoch_datetime"]
 
@@ -32,6 +37,30 @@ def create_app(config_filename=None):
         conf = read_conf(config_filename)
     app = falcon.API()
     rethink_factory = RethinkDBFactory(**conf["rethinkdb"])
-    app.add_route("/myresource", MyAPI(rethink_factory))
-    app.add_route("/users", Users(rethink_factory))
+
+    user_resource = Users(rethink_factory)
+    card_resource = Cards(rethink_factory)
+
+    app.add_route("/users", user_resource)
+    app.add_route("/cards", card_resource)
+
+    # Create an APISpec
+    spec = APISpec(
+        title='Swagger Petstore',
+        version='1.0.0',
+        openapi_version='2.0',
+        plugins=[
+            FalconPlugin(app),
+            MarshmallowPlugin(),
+        ],
+    )
+
+    # Register entities and paths
+    spec.components.schema('User', schema=User)
+    spec.components.schema('Card', schema=Card)
+
+    spec.path(resource=user_resource)
+    spec.path(resource=card_resource)
+
+
     return app
