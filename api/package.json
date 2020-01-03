@@ -1,0 +1,32 @@
+{
+  "name": "prelaunch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "npm run clean && npm run build && aws lambda update-function-code --function-name employees --zip-file fileb://build.zip --publish",
+    "clean": "rm build.zip",
+    "build": "zip -r build.zip node_modules index.js app.js routes.js",
+    "create-database": "aws dynamodb create-table --cli-input-json file://axiom-prelaunch-table-model.json --endpoint-url http://localhost:8080",
+    "dynamodb-local-run": "docker-compose up",
+    "start": "TABLE='ViralPrelaunch' node app-local"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bradkyle/Prelaunch.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bradkyle/Prelaunch/issues"
+  },
+  "homepage": "https://github.com/bradkyle/Prelaunch#readme",
+  "dependencies": {
+    "aws-sdk": "^2.597.0",
+    "aws-serverless-express": "^3.3.6",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "uuid": "^3.3.3"
+  }
+}
