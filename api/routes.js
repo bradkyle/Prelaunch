@@ -2,10 +2,13 @@ const AWS = require('aws-sdk');
 const express = require('express');
 const uuid = require('uuid');
 
-
 const IS_OFFLINE = process.env.NODE_ENV !== 'production';
-const EMPLOYEES_TABLE = process.env.TABLE;
-const BASE_ROUTE = "users"
+const USER_TABLE = process.env.TABLE;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+const USER_ROUTE = "users"
+const REFERRAL_ROUTE = "referrals"
 
 const dynamoDb = IS_OFFLINE === true ?
     new AWS.DynamoDB.DocumentClient({
@@ -16,10 +19,12 @@ const dynamoDb = IS_OFFLINE === true ?
 
 const router = express.Router();
 
-
-router.get('/'+ BASE_ROUTE, (req, res) => {
+/* 
+Retrieves a list of all users (must secure)
+*/
+router.get('/'+ USER_ROUTE, (req, res) => {
     const params = {
-        TableName: EMPLOYEES_TABLE
+        TableName: USER_TABLE
     };
     dynamoDb.scan(params, (error, result) => {
         if (error) {
@@ -29,10 +34,13 @@ router.get('/'+ BASE_ROUTE, (req, res) => {
     });
 });
 
-router.get('/'+BASE_ROUTE+'/:id', (req, res) => {
+/* 
+Retrieves a single user by id
+*/
+router.get('/'+USER_ROUTE+'/:id', (req, res) => {
     const id = req.params.id;
     const params = {
-        TableName: EMPLOYEES_TABLE,
+        TableName: USER_TABLE,
         Key: {
             id
         }
@@ -49,11 +57,14 @@ router.get('/'+BASE_ROUTE+'/:id', (req, res) => {
     });
 });
 
-router.post('/'+BASE_ROUTE, (req, res) => {
+/* 
+Creates a new user
+*/
+router.post('/'+USER_ROUTE, (req, res) => {
     const name = req.body.name;
     const id = uuid.v4();
     const params = {
-        TableName: EMPLOYEES_TABLE,
+        TableName: USER_TABLE,
         Item: {
             id,
             name
@@ -70,27 +81,37 @@ router.post('/'+BASE_ROUTE, (req, res) => {
     });
 });
 
-router.delete('/'+BASE_ROUTE+'/:id', (req, res) => {
-    const id = req.params.id;
+/* 
+Deactivates a user
+*/
+router.delete('/'+USER_ROUTE+'/:id', (req, res) => {
+    const id = req.body.id;
     const params = {
-        TableName: EMPLOYEES_TABLE,
+        TableName: USER_TABLE,
         Key: {
             id
-        }
-    };
-    dynamoDb.delete(params, (error) => {
+        },
+        UpdateExpression: 'set #disabled = :disabled',
+        ExpressionAttributeNames: { '#disabled': 'disabled' },
+        ExpressionAttributeValues: { ':disabled': True },
+        ReturnValues: "ALL_NEW"
+    }
+    dynamoDb.update(params, (error, result) => {
         if (error) {
-            res.status(400).json({ error: 'Could not delete User' });
+            res.status(400).json({ error: 'Could not deactivate User' });
         }
-        res.json({ success: true });
-    });
+        res.json(result.Attributes);
+    })
 });
 
-router.put('/'+BASE_ROUTE, (req, res) => {
+/* 
+Updates a user
+*/
+router.put('/'+USER_ROUTE, (req, res) => {
     const id = req.body.id;
     const name = req.body.name;
     const params = {
-        TableName: EMPLOYEES_TABLE,
+        TableName: USER_TABLE,
         Key: {
             id
         },
@@ -107,11 +128,14 @@ router.put('/'+BASE_ROUTE, (req, res) => {
     })
 });
 
-router.post('/'+BASE_ROUTE+'/inc/:id', (req, res) => {
+/* 
+Increments a users referral count
+*/
+router.post('/'+USER_ROUTE+'/inc/:id', (req, res) => {
     const name = req.body.name;
     const id = uuid.v4();
     const params = {
-        TableName: EMPLOYEES_TABLE,
+        TableName: USER_TABLE,
         Item: {
             id,
             name
@@ -128,66 +152,49 @@ router.post('/'+BASE_ROUTE+'/inc/:id', (req, res) => {
     });
 });
 
-router.get('/'+BASE_ROUTE+'/top', (req, res) => {
-    const name = req.body.name;
-    const id = uuid.v4();
+/* 
+Retrieves a list of top users by referral count with a limit and a maximum of 100
+*/
+router.get('/'+USER_ROUTE+'/top', (req, res) => {
     const params = {
-        TableName: EMPLOYEES_TABLE,
-        Item: {
-            id,
-            name
-        },
+        TableName: USER_TABLE
     };
-    dynamoDb.put(params, (error) => {
+    dynamoDb.scan(params, (error, result) => {
         if (error) {
-            res.status(400).json({ error: 'Could not create User' });
+            res.status(400).json({ error: 'Error fetching the users' });
         }
-        res.json({
-            id,
-            name
-        });
+        res.json(result.Items);
     });
 });
 
-router.get('/'+BASE_ROUTE+'/position', (req, res) => {
-    const name = req.body.name;
-    const id = uuid.v4();
+
+/* 
+Retrieves a single users position in the waiting list.
+*/
+router.get('/'+USER_ROUTE+'/position', (req, res) => {
     const params = {
-        TableName: EMPLOYEES_TABLE,
-        Item: {
-            id,
-            name
-        },
+        TableName: USER_TABLE
     };
-    dynamoDb.put(params, (error) => {
+    dynamoDb.scan(params, (error, result) => {
         if (error) {
-            res.status(400).json({ error: 'Could not create User' });
+            res.status(400).json({ error: 'Error fetching the users' });
         }
-        res.json({
-            id,
-            name
-        });
+        res.json(result.Items);
     });
 });
 
-router.get('/'+BASE_ROUTE+'/top', (req, res) => {
-    const name = req.body.name;
-    const id = uuid.v4();
+/* 
+Retrieves the total referrals count.
+*/
+router.get('/'+REFERRAL_ROUTE+'/count', (req, res) => {
     const params = {
-        TableName: EMPLOYEES_TABLE,
-        Item: {
-            id,
-            name
-        },
+        TableName: USER_TABLE
     };
-    dynamoDb.put(params, (error) => {
+    dynamoDb.scan(params, (error, result) => {
         if (error) {
-            res.status(400).json({ error: 'Could not create User' });
+            res.status(400).json({ error: 'Error fetching the users' });
         }
-        res.json({
-            id,
-            name
-        });
+        res.json(result.Items);
     });
 });
 
