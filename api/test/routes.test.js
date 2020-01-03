@@ -254,8 +254,6 @@ describe('DELETE /users/:id', () => {
       .delete('/users/test')
       .expect('Content-Type', /json/)
       .expect(200);
-
-    console.log(res.body);
   })
 })
 

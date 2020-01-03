@@ -99,7 +99,7 @@ router.get('/'+USER_ROUTE+'/:id', (req, res) => {
 
 /* 
 Creates a new user
-*/ // TODO create
+*/ // TODO increment referrer user id if it exists
 router.post('/'+USER_ROUTE, (req, res) => {
     
     USER.create({
