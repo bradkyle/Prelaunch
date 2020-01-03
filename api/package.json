@@ -8,7 +8,7 @@
     "deploy": "npm run clean && npm run build && aws lambda update-function-code --function-name employees --zip-file fileb://build.zip --publish",
     "clean": "rm build.zip",
     "build": "zip -r build.zip node_modules index.js app.js routes.js",
-    "create-database": "aws dynamodb create-table --cli-input-json file://axiom-prelaunch-table-model.json --endpoint-url http://localhost:8080",
+    "create-local-database": "aws dynamodb create-table --cli-input-json file://axiom-prelaunch-table-model.json --endpoint-url http://localhost:8080",
     "dynamodb-local-run": "docker-compose up",
     "start": "TABLE='ViralPrelaunch' node app-local"
   },
@@ -26,8 +26,15 @@
     "aws-sdk": "^2.597.0",
     "aws-serverless-express": "^3.3.6",
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "dynamodb": "^1.2.1",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
+    "faker": "^4.1.0",
+    "joi": "^14.3.1",
+    "lodash": "^4.17.15",
+    "ramda": "^0.26.1",
+    "riteway": "^6.1.1",
     "sendgrid": "^5.2.3",
     "uuid": "^3.3.3",
     "validator": "^12.1.0"
@@ -39,6 +46,7 @@
     ]
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "cross-env": "^6.0.3",
     "jest": "^24.9.0",
     "supertest": "^4.0.2"

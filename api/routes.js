@@ -1,34 +1,78 @@
 const AWS = require('aws-sdk');
 const express = require('express');
 const uuid = require('uuid');
-
-const IS_OFFLINE = process.env.NODE_ENV !== 'production';
-const USER_TABLE = process.env.TABLE;
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const basicAuth = require('express-basic-auth');
+const config = require('./config')
+var dynamo = require('dynamodb');
+const Joi = require('joi'); 
+var _ = require('lodash');
 
 const USER_ROUTE = "users"
 const REFERRAL_ROUTE = "referrals"
 
-const dynamoDb = IS_OFFLINE === true ?
-    new AWS.DynamoDB.DocumentClient({
+console.log(config.IS_OFFLINE);
+
+if (config.IS_OFFLINE === true){
+    dynamo.AWS.config.update({
         region: 'us-west-1',
         endpoint: 'http://127.0.0.1:8080',
-    }) :
-    new AWS.DynamoDB.DocumentClient();
+    })
+} else {
+    dynamo.AWS.config.update({});
+}
 
 const router = express.Router();
+
+var authConfig = {};
+authConfig[config.ADMIN_EMAIL.toString()] = config.ADMIN_PASSWORD.toString();
+const basicAuthFunc = basicAuth({users: authConfig});
+
+var USER = dynamo.define('User', {
+    hashKey : 'id',
+
+    // add the timestamp attributes (updatedAt, createdAt)
+    timestamps : true,
+
+    schema : {
+        id                : Joi.string().required(),
+        email             : Joi.string().email().required(),
+        ipaddress         : Joi.string().ip(),
+        macaddress        : Joi.string(),
+        firstname         : Joi.string(),
+        lastname          : Joi.string(),
+        variantid         : Joi.string(),
+        sourceurl         : Joi.string(),
+        useragent         : Joi.string(),
+        timetillsignup    : Joi.number(),
+        latitude          : Joi.string(),
+        longitude         : Joi.string(),
+        locale            : Joi.string(),
+        language          : Joi.string(),
+        country           : Joi.string(),
+        region            : Joi.string(),
+        cookies           : Joi.string(),
+        emailsent         : Joi.boolean(),
+        emailopened       : Joi.boolean(),
+        disabled          : Joi.boolean(),
+        hasreferrals      : Joi.boolean(),
+        referralcount     : Joi.number().integer().min(0)
+    },
+
+    // indexes : [{
+    //     rangeKey : 'referralcount'
+    // }]
+});
+
 
 /* 
 Retrieves a list of all users (must secure)
 */
-router.get('/'+ USER_ROUTE, (req, res) => {
-    const params = {
-        TableName: USER_TABLE
-    };
-    dynamoDb.scan(params, (error, result) => {
+router.get('/'+ USER_ROUTE, basicAuthFunc, (req, res) => {
+    USER.scan()
+    .loadAll()
+    .exec((error, result) => {
         if (error) {
-            res.status(400).json({ error: 'Error fetching the users' });
+            res.status(400).json({ error: 'Error retrieving Users' });
         }
         res.json(result.Items);
     });
@@ -38,69 +82,66 @@ router.get('/'+ USER_ROUTE, (req, res) => {
 Retrieves a single user by id
 */
 router.get('/'+USER_ROUTE+'/:id', (req, res) => {
-    const id = req.params.id;
-    const params = {
-        TableName: USER_TABLE,
-        Key: {
-            id
-        }
-    };
-    dynamoDb.get(params, (error, result) => {
+    var id = req.params.id;
+
+    USER.get({id: id}, (error, result) => {
         if (error) {
             res.status(400).json({ error: 'Error retrieving User' });
         }
-        if (result.Item) {
-            res.json(result.Item);
-        } else {
+        else if (result) {
+            res.json(result);
+        } 
+        else {
             res.status(404).json({ error: `User with id: ${id} not found` });
         }
-    });
+    })
 });
 
 /* 
 Creates a new user
-*/
+*/ // TODO create
 router.post('/'+USER_ROUTE, (req, res) => {
-    const name = req.body.name;
-    const id = uuid.v4();
-    const params = {
-        TableName: USER_TABLE,
-        Item: {
-            id,
-            name
-        },
-    };
-    dynamoDb.put(params, (error) => {
+    
+    USER.create({
+        id:uuid.v4(),
+        email:req.body.email,
+        ipadress:req.body.ipaddress
+    }, (error, result) => {
         if (error) {
-            res.status(400).json({ error: 'Could not create User' });
+            res.status(400).json({ error: 'Could not create User'});
         }
-        res.json({
-            id,
-            name
-        });
-    });
+        res.json(result);
+    })
+
+    if (referred){
+        console.log("User was referred")
+    }
+    
+    //TODO if user was referred
 });
 
 /* 
 Deactivates a user
 */
 router.delete('/'+USER_ROUTE+'/:id', (req, res) => {
-    const id = req.body.id;
-    const params = {
-        TableName: USER_TABLE,
-        Key: {
-            id
-        },
-        UpdateExpression: 'set #disabled = :disabled',
-        ExpressionAttributeNames: { '#disabled': 'disabled' },
-        ExpressionAttributeValues: { ':disabled': True },
-        ReturnValues: "ALL_NEW"
-    }
-    dynamoDb.update(params, (error, result) => {
+    var id = req.params.id;
+    USER.update({
+        id:id,
+        disabled: true
+    }, 
+    {
+        expected: {id: id}
+    }, 
+    (error, result) => {
         if (error) {
-            res.status(400).json({ error: 'Could not deactivate User' });
+            res.status(400).json({ error: 'Error disactivating User' });
         }
-        res.json(result.Attributes);
+        else if (result) {
+            res.json(result);
+        } 
+        else {
+            res.status(404).json({ error: `User with id: ${id} not found` });
+        }
     })
 });
 
@@ -108,94 +149,56 @@ router.delete('/'+USER_ROUTE+'/:id', (req, res) => {
 Updates a user
 */
 router.put('/'+USER_ROUTE, (req, res) => {
-    const id = req.body.id;
-    const name = req.body.name;
-    const params = {
-        TableName: USER_TABLE,
-        Key: {
-            id
-        },
-        UpdateExpression: 'set #name = :name',
-        ExpressionAttributeNames: { '#name': 'name' },
-        ExpressionAttributeValues: { ':name': name },
-        ReturnValues: "ALL_NEW"
-    }
-    dynamoDb.update(params, (error, result) => {
+    USER.update({
+        id:req.body.id,
+        email:req.body.email,
+        ipaddress:req.body.ipaddress
+    }, (error, result) => {
         if (error) {
             res.status(400).json({ error: 'Could not update User' });
         }
-        res.json(result.Attributes);
+        res.json(result);
     })
-});
-
-/* 
-Increments a users referral count
-*/
-router.post('/'+USER_ROUTE+'/inc/:id', (req, res) => {
-    const name = req.body.name;
-    const id = uuid.v4();
-    const params = {
-        TableName: USER_TABLE,
-        Item: {
-            id,
-            name
-        },
-    };
-    dynamoDb.put(params, (error) => {
-        if (error) {
-            res.status(400).json({ error: 'Could not create User' });
-        }
-        res.json({
-            id,
-            name
-        });
-    });
 });
 
 /* 
 Retrieves a list of top users by referral count with a limit and a maximum of 100
 */
 router.get('/'+USER_ROUTE+'/top', (req, res) => {
-    const params = {
-        TableName: USER_TABLE
-    };
-    dynamoDb.scan(params, (error, result) => {
+    USER.query()
+    .usingIndex('referralcount')
+    .attributes(['id', 'referralcount'])
+    .descending()
+    .limit(parseInt(config.TOP_LIMIT))
+    .loadAll()
+    .exec((error, result) => {
         if (error) {
-            res.status(400).json({ error: 'Error fetching the users' });
+            res.status(400).json({ error: 'Error retrieving top Users by referral count' });
         }
-        res.json(result.Items);
+        res.json(result);
     });
 });
-
 
 /* 
 Retrieves a single users position in the waiting list.
 */
 router.get('/'+USER_ROUTE+'/position', (req, res) => {
-    const params = {
-        TableName: USER_TABLE
-    };
-    dynamoDb.scan(params, (error, result) => {
+    USER.query()
+    .usingIndex('referralcount')
+    .attributes(['id', 'referralcount'])
+    .descending()
+    .loadAll()
+    .exec((error, result) => {
         if (error) {
-            res.status(400).json({ error: 'Error fetching the users' });
+            res.status(400).json({ error: 'Error retrieving top Users by referral count' });
         }
-        res.json(result.Items);
+        
+        res.json({position:Object.keys(result).indexOf(req.body.id)});
     });
 });
 
-/* 
-Retrieves the total referrals count.
-*/
-router.get('/'+REFERRAL_ROUTE+'/count', (req, res) => {
-    const params = {
-        TableName: USER_TABLE
-    };
-    dynamoDb.scan(params, (error, result) => {
-        if (error) {
-            res.status(400).json({ error: 'Error fetching the users' });
-        }
-        res.json(result.Items);
-    });
-});
-
-module.exports = router;
+module.exports = {
+    router:router,
+    USER:USER,
+    dynamo:dynamo
+}
