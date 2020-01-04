@@ -40,6 +40,8 @@ var USER = dynamo.define('User', {
         macaddress        : Joi.string(),
         firstname         : Joi.string(),
         lastname          : Joi.string(),
+        phonenumber       : Joi.string(),
+        phonezone         : Joi.string(),
         variantid         : Joi.string(),
         sourceurl         : Joi.string(),
         useragent         : Joi.string(),
@@ -55,6 +57,12 @@ var USER = dynamo.define('User', {
         emailopened       : Joi.boolean(),
         disabled          : Joi.boolean(),
         hasreferrals      : Joi.boolean(),
+        hasemail          : Joi.boolean(),
+        hasphone          : Joi.boolean(),
+        whatsappsent      : Joi.boolean(),
+        whatsappopened    : Joi.boolean(),
+        messagesent       : Joi.boolean(),
+        messageopened     : Joi.boolean(),
         referralcount     : Joi.number().integer().min(0)
     },
 
@@ -113,9 +121,9 @@ router.post('/'+USER_ROUTE, (req, res) => {
         res.json(result);
     })
 
-    if (referred){
-        console.log("User was referred")
-    }
+    // if (referred){
+    //     console.log("User was referred")
+    // }
     
     //TODO if user was referred
 });
@@ -192,8 +200,13 @@ router.get('/'+USER_ROUTE+'/position', (req, res) => {
         if (error) {
             res.status(400).json({ error: 'Error retrieving top Users by referral count' });
         }
+
+        var rsp = {
+            position:Object.keys(result).indexOf(req.body.id),
+            count:Object.keys(result).length
+        }
         
-        res.json({position:Object.keys(result).indexOf(req.body.id)});
+        res.json(rsp);
     });
 });
 

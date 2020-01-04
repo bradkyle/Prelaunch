@@ -143,20 +143,6 @@ describe('GET /users/:id', () => {
             email: faker.internet.email(),
             ipaddress:faker.internet.ip(),
             macaddress: faker.internet.mac(),
-            useragent: faker.internet.userAgent(),
-            sourceurl: faker.internet.url(),
-            firstname: faker.name.firstName(),
-            lastname: faker.name.lastName(),
-            emailsent: faker.random.boolean(),
-            emailopened: faker.random.boolean(),
-            variantid: faker.random.uuid(),
-            timetillsignup: faker.random.number(),
-            latitude: faker.address.latitude(),
-            longitude: faker.address.longitude(),
-            country: faker.address.country(),
-            region: faker.address.state(),
-            referralcount: faker.random.number(),
-            hasreferrals: faker.random.boolean(),
             disabled: false
           })
           createUsers(done, fake_users);
@@ -182,19 +168,95 @@ describe('GET /users/:id', () => {
       .expect(404);
   })
 
+  //TODO validation
   it('should have status 200 and items in response if user found', async () => {
     const res = await request(app)
       .get('/users/test')
       .expect('Content-Type', /json/)
-      .expect(200);
-
-    
+      .expect(200);    
   }) 
 
 })
 
 describe('POST /users', () => {
-  
+  beforeAll((done) => {
+    routes.dynamo.createTables(function(err) {
+      if (err) {
+          console.log('Error creating tables: ', err);
+      } else {
+          console.log('Tables has been created');
+          done();
+      }
+    });
+  });
+
+  afterAll((done) => {
+    routes.USER.deleteTable(function(err) {
+      if (err) {
+          console.log('Error destroying tables: ', err);
+      } else {
+          console.log('Tables has been destroyed');
+          done();
+      }
+    });
+  });
+
+  it('should return status 200 and return user response if successful.', async () => {
+    const res = await request(app)
+      .post('/users/')
+      .send({})
+      .expect('Content-Type', /json/)
+      .expect(400);
+  })
+
+  it('should return status 400 if it has a parameter that is not supported.', async () => {
+    const res = await request(app)
+      .post('/users/')
+      .send({})
+      .expect('Content-Type', /json/)
+      .expect(400);
+  })  
+
+  it('should return status 400 if it has a required parameter that missing.', async () => {
+    const res = await request(app)
+      .post('/users/')
+      .send({})
+      .expect('Content-Type', /json/)
+      .expect(400);
+  })  
+
+  it('should return status 400 if empty request', async () => {
+    const res = await request(app)
+      .post('/users/')
+      .send({})
+      .expect('Content-Type', /json/)
+      .expect(400);
+  })  
+
+  it('should return status 400 if it has a parameter that is not correct format.', async () => {
+    const res = await request(app)
+      .post('/users/')
+      .send({})
+      .expect('Content-Type', /json/)
+      .expect(400);
+  })  
+
+  it('should increment refferal users referral count if the user has been referred.', async () => {
+    const res = await request(app)
+      .post('/users/')
+      .send({})
+      .expect('Content-Type', /json/)
+      .expect(400);
+  })  
+
+  it('should send email to the html email address specified.', async () => {
+    const res = await request(app)
+      .post('/users/')
+      .send({})
+      .expect('Content-Type', /json/)
+      .expect(400);
+  })
+
 })
 
 describe('DELETE /users/:id', () => {
@@ -209,21 +271,6 @@ describe('DELETE /users/:id', () => {
             id: "test",
             email: faker.internet.email(),
             ipaddress:faker.internet.ip(),
-            macaddress: faker.internet.mac(),
-            useragent: faker.internet.userAgent(),
-            sourceurl: faker.internet.url(),
-            firstname: faker.name.firstName(),
-            lastname: faker.name.lastName(),
-            emailsent: faker.random.boolean(),
-            emailopened: faker.random.boolean(),
-            variantid: faker.random.uuid(),
-            timetillsignup: faker.random.number(),
-            latitude: faker.address.latitude(),
-            longitude: faker.address.longitude(),
-            country: faker.address.country(),
-            region: faker.address.state(),
-            referralcount: faker.random.number(),
-            hasreferrals: faker.random.boolean(),
             disabled: false
           })
           createUsers(done, fake_users);
@@ -234,7 +281,7 @@ describe('DELETE /users/:id', () => {
   afterAll((done) => {
     routes.USER.deleteTable(function(err) {
       if (err) {
-          console.log('Error creating tables: ', err);
+          console.log('Error destroying tables: ', err);
       } else {
           console.log('Tables has been destroyed');
           done();
@@ -254,21 +301,101 @@ describe('DELETE /users/:id', () => {
       .delete('/users/test')
       .expect('Content-Type', /json/)
       .expect(200);
+
+    // no data in res TODO
   })
 })
 
-// describe('PUT /users/:id', () => {
-//   it('should have status 404: Not Found if user does not exist', async () => {
-//     const res = await request(app)
-//       .put('/users/fjadfasdfis')
-//       .send({})
-//       .expect('Content-Type', /json/)
-//       .expect(404);
-//   })
-// })
+describe('PUT /users/:id', () => {
+  beforeAll((done) => {
+    routes.dynamo.createTables(function(err) {
+      if (err) {
+          console.log('Error creating tables: ', err);
+      } else {
+          console.log('Tables has been created');
+          var fake_users = []
+          fake_users.push({
+            id: "test",
+            email: faker.internet.email(),
+            ipaddress:faker.internet.ip(),
+            macaddress: faker.internet.mac(),
+            disabled: false
+          })
+          createUsers(done, fake_users);
+      }
+    });
+  });
+
+  afterAll((done) => {
+    routes.USER.deleteTable(function(err) {
+      if (err) {
+          console.log('Error destroying tables: ', err);
+      } else {
+          console.log('Tables has been destroyed');
+          done();
+      }
+    });
+  });
+
+  it('should have status 404: Not Found if user does not exist', async () => {
+    const res = await request(app)
+      .put('/users/fjadfasdfis')
+      .send({})
+      .expect('Content-Type', /html/)
+      .expect(404);
+  })
+
+  it('should have status 400 if no content in submitted body', async () => {
+    const res = await request(app)
+      .put('/users/test')
+      .send({})
+      .expect('Content-Type', /html/)
+      .expect(404);
+  })
+
+  it('should have status 200', async () => {
+    const res = await request(app)
+      .put('/users/test')
+      .send({})
+      .expect('Content-Type', /html/)
+      .expect(404);
+  })
+})
 
 
 describe('GET /users/top', () => {
+  beforeAll((done) => {
+    routes.dynamo.createTables(function(err) {
+      if (err) {
+          console.log('Error creating tables: ', err);
+      } else {
+          console.log('Tables has been created');
+          var fake_users = []
+          for (var x=0; x<15; x++){
+            fake_users.push({
+              id: "test",
+              email: faker.internet.email(),
+              ipaddress:faker.internet.ip(),
+              referralcount: i,
+              disabled: false
+            })
+          }
+          createUsers(done, fake_users);
+      }
+    });
+  });
+
+  afterAll((done) => {
+    routes.USER.deleteTable(function(err) {
+      if (err) {
+          console.log('Error destroying tables: ', err);
+      } else {
+          console.log('Tables has been destroyed');
+          done();
+      }
+    });
+  });
+
   
 })
 
