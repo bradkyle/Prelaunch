@@ -11,6 +11,7 @@ const handlebars = require('handlebars');
 const chalk = require('chalk');
 const mjml = require('mjml');
 const sgMail = require('@sendgrid/mail');
+const fs = require('fs');
 
 const USER_ROUTE = "users"
 const MONGO_URL = 'mongodb://localhost:27017';
@@ -19,8 +20,8 @@ const MAX_NUM_TOP = 100
 const SENDGRID_API_KEY = "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"
 sgMail.setApiKey(SENDGRID_API_KEY);
 
-console.log(chalk.green('Reading content from example.hbs template...'));
-const mjmlTemplateFile = fs.readFileSync(`${__dirname}/views/example.hbs`, 'utf8');
+console.log('Reading content from example.hbs template...');
+const mjmlTemplateFile = fs.readFileSync(`${__dirname}/public/even_better.mjml`, 'utf8');
 const template = handlebars.compile(mjmlTemplateFile);
 
 mongoose.Promise = global.Promise;
@@ -40,6 +41,8 @@ const router = express.Router();
 var authConfig = {};
 authConfig[config.ADMIN_EMAIL.toString()] = config.ADMIN_PASSWORD.toString();
 const basicAuthFunc = basicAuth({users: authConfig});
+
+// TODO serve images
 
 var JoiUserSchema = Joi.object({
     email             : Joi.string().email(),
@@ -110,44 +113,44 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', UserSchema);
 
-function sendEmail(apikey, to, from, from_name, subject='Welcome to Axiom!'){
+function sendEmail(
+    position, 
+    count, 
+    to, 
+    from, 
+    subject,
+    done
+){
     /*
     Sends an email via the sendgrid.com API.
     */
 
-   const userInfo = {
-        name: 'Pepe',
-        lastname: 'Avila',
-        email: process.env.RECIPENT_EMAIL,
-        patients: [
-            { id: 24654, name: 'Matias Erazo' },
-            { id: 24655, name: 'Rodrigo Gutierrez' },
-            { id: 25655, name: 'Maria Paz Bustos' },
-        ]
+    const userInfo = {
+        email: to,
+        position: position,
+        count: count
     }
 
-    const hbsHtml = template(userInfo);
+    const hbsHtml = template({});
     const templateMarkup = mjml(hbsHtml);
 
-    if ( templateMarkup.errors.length === 0 ){
+    if (templateMarkup.errors.length === 0){
         const msg = {
-          to: userInfo.email,
-          from: {
-            email: from,
-            name: process.env.FROM_EMAIL_NAME
-          },
-          subject: subject,
-          html: templateMarkup.html
+            to: userInfo.email,
+            from: from,
+            subject: subject,
+            html: templateMarkup.html
         }
-        
         sgMail.send(msg).then(() => {
-          console.log(chalk.green('Mail sent!'));
+            console.log('Mail sent!');
         }, (error) => {
-          console.log(chalk.red(error.message));    
+            console.log(error.message);    
         });
-      } else {
-        console.error('There are errors in your MJML markup');
-      }
+    } else {
+        console.error('There are errors in your MJML markup:');
+        console.error(templateMarkup.errors);
+    }
+    if (done){done()};
 }
 
 function sendMessage(accountSid, authToken){
@@ -391,5 +394,8 @@ router.get('/count', (req, res) => {
 
 module.exports = {
     router:router,
-    User:User
+    User:User,
+    sendEmail:sendEmail,
+    sendMessage:sendMessage,
+    sendWhatsapp:sendWhatsapp
 };
