@@ -7,12 +7,21 @@ var _ = require('lodash');
 const mongoose = require('mongoose');
 const Joigoose = require("joigoose")(mongoose);
 const util = require('util')
-
+const handlebars = require('handlebars');
+const chalk = require('chalk');
+const mjml = require('mjml');
+const sgMail = require('@sendgrid/mail');
 
 const USER_ROUTE = "users"
 const MONGO_URL = 'mongodb://localhost:27017';
 const DB_NAME = 'prelaunch';
 const MAX_NUM_TOP = 100
+const SENDGRID_API_KEY = "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"
+sgMail.setApiKey(SENDGRID_API_KEY);
+
+console.log(chalk.green('Reading content from example.hbs template...'));
+const mjmlTemplateFile = fs.readFileSync(`${__dirname}/views/example.hbs`, 'utf8');
+const template = handlebars.compile(mjmlTemplateFile);
 
 mongoose.Promise = global.Promise;
 
@@ -33,11 +42,9 @@ authConfig[config.ADMIN_EMAIL.toString()] = config.ADMIN_PASSWORD.toString();
 const basicAuthFunc = basicAuth({users: authConfig});
 
 var JoiUserSchema = Joi.object({
-    id                : Joi.string(),
-    email             : Joi.string(),
-    ipaddress         : Joi.string(),
+    email             : Joi.string().email(),
+    ipaddress         : Joi.string().ip(),
     referrerid        : Joi.string(),
-    hasrefferer       : Joi.string(),
     macaddress        : Joi.string(),
     firstname         : Joi.string(),
     lastname          : Joi.string(),
@@ -46,7 +53,7 @@ var JoiUserSchema = Joi.object({
     variantid         : Joi.string(),
     sourceurl         : Joi.string(),
     useragent         : Joi.string(),
-    timetillsignup    : Joi.string(),
+    timetillsignup    : Joi.number(),
     latitude          : Joi.string(),
     longitude         : Joi.string(),
     locale            : Joi.string(),
@@ -54,23 +61,23 @@ var JoiUserSchema = Joi.object({
     country           : Joi.string(),
     region            : Joi.string(),
     cookies           : Joi.string(),
-    emailsent         : Joi.string(),
-    emailopened       : Joi.string(),
-    disabled          : Joi.string(),
-    hasreferrals      : Joi.string(),
-    hasemail          : Joi.string(),
-    hasphone          : Joi.string(),
-    whatsappsent      : Joi.string(),
-    whatsappopened    : Joi.string(),
-    messagesent       : Joi.string(),
-    messageopened     : Joi.string(),
-    referralcount     : Joi.string(),
+    emailsent         : Joi.boolean(),
+    emailopened       : Joi.boolean(),
+    disabled          : Joi.boolean(),
+    hasrefferer       : Joi.boolean(),
+    hasreferrals      : Joi.boolean(),
+    hasemail          : Joi.boolean(),
+    hasphone          : Joi.boolean(),
+    whatsappsent      : Joi.boolean(),
+    whatsappopened    : Joi.boolean(),
+    messagesent       : Joi.boolean(),
+    messageopened     : Joi.boolean(),
+    referralcount     : Joi.number(),
 });
 
 const UserSchema = new mongoose.Schema({
-    id                : String,
-    email             : String,
-    ipaddress         : String,
+    email             : {type:String, required: true, unique: true},
+    ipaddress         : {type:String, required: true, unique: true},
     referrerid        : String,
     macaddress        : String,
     firstname         : String,
@@ -80,7 +87,7 @@ const UserSchema = new mongoose.Schema({
     variantid         : String,
     sourceurl         : String,
     useragent         : String,
-    timetillsignup    : String,
+    timetillsignup    : Number,
     latitude          : String,
     longitude         : String,
     locale            : String,
@@ -103,11 +110,83 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', UserSchema);
 
+function sendEmail(apikey, to, from, from_name, subject='Welcome to Axiom!'){
+    /*
+    Sends an email via the sendgrid.com API.
+    */
+
+   const userInfo = {
+        name: 'Pepe',
+        lastname: 'Avila',
+        email: process.env.RECIPENT_EMAIL,
+        patients: [
+            { id: 24654, name: 'Matias Erazo' },
+            { id: 24655, name: 'Rodrigo Gutierrez' },
+            { id: 25655, name: 'Maria Paz Bustos' },
+        ]
+    }
+
+    const hbsHtml = template(userInfo);
+    const templateMarkup = mjml(hbsHtml);
+
+    if ( templateMarkup.errors.length === 0 ){
+        const msg = {
+          to: userInfo.email,
+          from: {
+            email: from,
+            name: process.env.FROM_EMAIL_NAME
+          },
+          subject: subject,
+          html: templateMarkup.html
+        }
+        
+        sgMail.send(msg).then(() => {
+          console.log(chalk.green('Mail sent!'));
+        }, (error) => {
+          console.log(chalk.red(error.message));    
+        });
+      } else {
+        console.error('There are errors in your MJML markup');
+      }
+}
+
+function sendMessage(accountSid, authToken){
+    /*
+    Sends a SMS confirmation message from the twilio.com API.
+    */
+    // Download the helper library from https://www.twilio.com/docs/node/install
+    // Your Account Sid and Auth Token from twilio.com/console
+    // DANGER! This is insecure. See http://twil.io/secure
+    const client = require('twilio')(accountSid, authToken);
+
+    client.messages
+        .create({body: 'Hi there!', from: '+15017122661', to: '+15558675310'})
+        .then(message => console.log(message.sid));
+}
+
+function sendWhatsapp(accountSid, authToken){
+    /*
+    Sends a whatsapp messsage as confirmation from the twilio.com API.
+    */
+    // Download the helper library from https://www.twilio.com/docs/node/install
+    // Your Account Sid and Auth Token from twilio.com/console
+    // DANGER! This is insecure. See http://twil.io/secure
+    const client = require('twilio')(accountSid, authToken);
+
+    client.messages
+    .create({
+        from: 'whatsapp:+14155238886',
+        body: 'Hello there!',
+        to: 'whatsapp:+15005550006'
+    })
+    .then(message => console.log(message.sid));
+}
+
 /* 
 Retrieves a list of all users (must secure)
 */
 router.get('/'+ USER_ROUTE, basicAuthFunc, (req, res) => {
-    User.find()
+    User.find({disabled: false})
     .then(users => {
         res.send(users);
     }).catch(err => {
@@ -145,38 +224,53 @@ router.get('/'+USER_ROUTE+'/:id', (req, res) => {
 Creates a new user
 */ // TODO increment referrer user id if it exists
 router.post('/'+USER_ROUTE, (req, res) => {
-    if(!req.body) {
-        return res.status(400).send({
-            message: "user content can not be empty"
-        });
-    }
-    var user = new User(req.body)
+    try{
+        if(!req.body) {
+            return res.status(400).send({
+                message: "user content can not be empty"
+            });
+        } 
+        
+        JoiUserSchema.validate(req.body, (err, user) => {
+            var user = new User(user);
+            user.referralcount = 0
+            if (err){
+                return res.status(400).send({
+                    message: err.message || "Some error occurred while creating the user."
+                });
+            }
 
-    if (user.hasrefferer || user.referrerid !== null){
-        console.log("Has referrer!");
-        User.findByIdAndUpdate(user.referrerid, {$inc: { referralcount: 1 } }, {new: true})
-        .then(user => {
-            if(!user) {
-                console.error("user not found with id " + user.referrerid);
+            if (user.hasrefferer || user.referrerid){
+                User.findByIdAndUpdate(user.referrerid, {$inc: { referralcount: 1 } }, {new: true})
+                .then(user => {
+                    if(!user) {
+                        console.error("user not found with id " + user.referrerid);
+                    }
+                    // TODO conditional notification
+                }).catch(err => {
+                    if(err.kind === 'ObjectId') {
+                        console.error("user not found with id " + user.referrerid);                
+                    }
+                    console.error("Error updating user with id " + user.referrerid);
+                });
             }
-            // TODO conditional notification
-        }).catch(err => {
-            if(err.kind === 'ObjectId') {
-                console.error("user not found with id " + user.referrerid);                
-            }
-            console.error("Error updating user with id " + user.referrerid);
-        });
+
+            // Save user in the database
+            user.save()
+            .then(data => {
+                res.send(data);
+            }).catch(err => {
+                return res.status(500).send({
+                    message: err.message || "Some error occurred while creating the user."
+                });
+            });
+        })
+
+     } catch (e) {
+        console.error(e)
     }
-    
-    // Save user in the database
-    user.save()
-    .then(data => {
-        res.send(data);
-    }).catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error occurred while creating the user."
-        });
-    });
+
+    // TODO send email
     
 });
 
@@ -243,7 +337,9 @@ router.get('/top', (req, res) => {
             num = Math.min(req.query.num, MAX_NUM_TOP);
         }
 
-        User.find().sort({referralcount:-1}).limit(num).then(users => {
+        User.find({disabled: false})
+        .sort({referralcount:-1})
+        .limit(num).then(users => {
             if (!users.length > 0){
                 return res.status(404).send({
                     message: "No users present"
@@ -268,7 +364,9 @@ router.get('/position/:id', (req, res) => {
             });            
         }
 
-        User.find({referralcount: {$gt: user.referralcount}}).count(function (position) {
+        User
+        .find({referralcount: {$gt: user.referralcount}, disabled:false})
+        .count(function (position) {
             res.send(position)
         });
 
@@ -281,9 +379,14 @@ router.get('/position/:id', (req, res) => {
         return res.status(500).send({
             message: "Error retrieving user with id " + req.params.id
         });
-    });
+    });    
+});
 
-    
+/* 
+Retrieves a single users position in the waiting list.
+*/
+router.get('/count', (req, res) => {
+        
 });
 
 module.exports = {
