@@ -1,5 +1,6 @@
 version: '2'
 services:
+  
   dynamodb:
     container_name: dynamodb
     image: 'amazon/dynamodb-local:latest'
@@ -11,3 +12,10 @@ services:
     ports:
       - '8080:8000'
       
+  mongodb:
+    image: 'bitnami/mongodb:4.0'
+    ports:
+      - "27017:27017"
+    volumes:
+      - ${PWD}/data:/data
+      - ${PWD}/data/bitnami:/bitnamiq
