@@ -55,10 +55,10 @@
       <mj-column>
       <mj-text align="center" color="#222222">
           <h1>
-            Thank you! 
+            {{header_thank_you}} 
           </h1>
         	<h3>
-              We have added your email address to the signup queue. 
+            {{header_subtitle}}
           </h3>
       </mj-text>
       </mj-column>
@@ -69,37 +69,37 @@
       <mj-column>
         <mj-text align="center" color="white">
             <h1>
-              354,111 People are ahead of you 
+              {{ahead_text}}
             </h1>
-            <h4>
-              This reservation is held for email@example.com, is this <a href="example.com" color="white">not you?</a>
+            <h4 color="white">
+              {{ahead_subtext}}
             </h4>
           </mj-text>
         <mj-divider border-width="1px" border-style="dashed" border-color="lightgrey"/>
         <mj-text align="center" color="white" padding-bottom="30px" padding-top="25px">
           <h1>
-						Get rewarded
+						{{rewarded_text}}
           </h1>
         	<p>
-              Get early access and commmission by referring your friends. The more friends that join, the sooner you'll get access and the more commission you'll earn per trade when we go live.
+            {{rewarded_subtext}}
           </p>
       </mj-text>
         <mj-table color="white" css-class="tbl" >
           <tr style="border-bottom:1px solid grey;text-align:left;padding:15px 0;">
-            <th style="padding: 0 15px 0 0;">people referred</th>
-            <th style="padding: 0 15px;">% of commmissions</th>
+            <th style="padding: 0 15px 0 0;">{{people_referred}}</th>
+            <th style="padding: 0 15px;">{{percent_of_commissions}}</th>
           </tr>
           <tr>
-            <td style="padding: 0 15px 0 0;">100 or more</td>
-            <td style="padding: 0 15px;">10%</td>
+            <td style="padding: 0 15px 0 0;">{{first_tier}}</td>
+            <td style="padding: 0 15px;">{{first_tier_percent}}</td>
           </tr>
           <tr>
-            <td style="padding: 0 15px 0 0;">500 or more</td>
-            <td style="padding: 0 15px;">15%</td>
+            <td style="padding: 0 15px 0 0;">{{second_tier}}</td>
+            <td style="padding: 0 15px;">{{second_tier_percent}}</td>
           </tr>
           <tr>
-            <td style="padding: 0 15px 0 0;">1000 or more</td>
-            <td style="padding: 0 15px;">20%</td>
+            <td style="padding: 0 15px 0 0;">{{third_tier}}</td>
+            <td style="padding: 0 15px;">{{third_tier_percent}}</td>
           </tr>
         </mj-table>
       </mj-column>
@@ -131,23 +131,21 @@
       <mj-column>
       <mj-text align="center" color="white" padding-top="0px" padding-bottom="20px">
           <h2>
-						Or share this unique link
+						{{share_this_link}}
           </h2>
         <mj-text align="center" color="white" padding-top="0px">
         	<h4>
-              https://www.example.com/?ref=difohsodfisdnfiosdfnaosi
+              {{user_referral_link}}
           </h4>
         </mj-text>
       </mj-text>
       </mj-column>
     </mj-section>
       <mj-section css-class="footr"  background-url="https://brex.com/static/planet-958a41d34aa478860ee108978fcd26b4.png" background-size="cover" background-repeat="no-repeat">
-      
-        
         <mj-column padding-top="10px">
         <mj-divider border-width="1px" border-style="dashed" border-color="lightgrey"/>
         <mj-button color="white" width="100%" >
-          Monitor your progress
+          {{monitor_your_progress}}
          </mj-button>
       </mj-column>
       </mj-section>

@@ -2,6 +2,7 @@ const express = require('express');
 const uuid = require('uuid');
 const basicAuth = require('express-basic-auth');
 const config = require('./config');
+const trans = require('./trans');
 const Joi = require('joi'); 
 var _ = require('lodash');
 const mongoose = require('mongoose');
@@ -94,12 +95,13 @@ const UserSchema = new mongoose.Schema({
     latitude          : String,
     longitude         : String,
     locale            : String,
-    language          : String,
     country           : String,
     region            : String,
     cookies           : String,
+    language          : String,
     hasrefferer       : {type: Boolean,default: false},
     emailsent         : {type: Boolean,default: false},
+    emailverified     : {type: Boolean,default: false},
     emailopened       : {type: Boolean,default: false},
     disabled          : {type: Boolean,default: false},
     hasreferrals      : {type: Boolean,default: false},
@@ -118,27 +120,34 @@ function sendEmail(
     count, 
     to, 
     from, 
-    subject,
+    language,
     done
 ){
     /*
     Sends an email via the sendgrid.com API.
     */
-
-    const userInfo = {
+    var userInfo = {
         email: to,
-        position: position,
-        count: count
+    }
+    
+    if (language in trans){
+        userInfo = Object.assign(userInfo, trans[language]())
+    } else if (language){
+        console.error("Language not in translations: "+language.toString())
+        userInfo = Object.assign(userInfo, trans["eng"]())
+    } else {
+        console.error("Language is null, using default")
+        userInfo = Object.assign(userInfo, trans["eng"]())
     }
 
-    const hbsHtml = template({});
+    const hbsHtml = template(userInfo);
     const templateMarkup = mjml(hbsHtml);
 
     if (templateMarkup.errors.length === 0){
         const msg = {
             to: userInfo.email,
             from: from,
-            subject: subject,
+            subject: userInfo.subject,
             html: templateMarkup.html
         }
         sgMail.send(msg).then(() => {
@@ -153,37 +162,10 @@ function sendEmail(
     if (done){done()};
 }
 
-function sendMessage(accountSid, authToken){
-    /*
-    Sends a SMS confirmation message from the twilio.com API.
-    */
-    // Download the helper library from https://www.twilio.com/docs/node/install
-    // Your Account Sid and Auth Token from twilio.com/console
-    // DANGER! This is insecure. See http://twil.io/secure
-    const client = require('twilio')(accountSid, authToken);
-
-    client.messages
-        .create({body: 'Hi there!', from: '+15017122661', to: '+15558675310'})
-        .then(message => console.log(message.sid));
+function doOrRetry(){
+    
 }
 
-function sendWhatsapp(accountSid, authToken){
-    /*
-    Sends a whatsapp messsage as confirmation from the twilio.com API.
-    */
-    // Download the helper library from https://www.twilio.com/docs/node/install
-    // Your Account Sid and Auth Token from twilio.com/console
-    // DANGER! This is insecure. See http://twil.io/secure
-    const client = require('twilio')(accountSid, authToken);
-
-    client.messages
-    .create({
-        from: 'whatsapp:+14155238886',
-        body: 'Hello there!',
-        to: 'whatsapp:+15005550006'
-    })
-    .then(message => console.log(message.sid));
-}
 
 /* 
 Retrieves a list of all users (must secure)
@@ -258,10 +240,20 @@ router.post('/'+USER_ROUTE, (req, res) => {
                 });
             }
 
+            var position = 0
+            var count = 5
+
             // Save user in the database
             user.save()
-            .then(data => {
-                res.send(data);
+            .then(user => {
+                routes.sendEmail(
+                    position, 
+                    count, 
+                    user.email, 
+                    config.ADMIN_EMAIL,  
+                    user.language
+                )
+                res.send(user);
             }).catch(err => {
                 return res.status(500).send({
                     message: err.message || "Some error occurred while creating the user."
