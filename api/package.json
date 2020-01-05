@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest --testTimeout=10000",
+    "test": "cross-env NODE_ENV=test jest --testTimeout=20000",
     "deploy": "npm run clean && npm run build && aws lambda update-function-code --function-name employees --zip-file fileb://build.zip --publish",
     "clean": "rm build.zip",
     "build": "zip -r build.zip node_modules index.js app.js routes.js",
@@ -36,6 +36,7 @@
     "joigoose": "^6.2.0",
     "lodash": "^4.17.15",
     "mongodb": "^3.4.1",
+    "mongoose": "^5.8.4",
     "public-ip": "^4.0.0",
     "ramda": "^0.26.1",
     "riteway": "^6.1.1",

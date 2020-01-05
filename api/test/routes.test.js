@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../app-local');
-const routes = require('../routes_old');
+const routes = require('../routes');
 const config = require('../config');
 var faker = require('faker');
 faker.seed(123);
@@ -34,26 +34,36 @@ function genFakeUsers(num){
   return fake_users;
 }
 
-function logUsers(){
-  routes.USER.scan()
-  .loadAll().exec((err, result)=>{
-    if (err) {
-      console.error("Could not get users: "+err.toString())
-    } else{
-      console.log(result.Items);
-    }
+function logUsers(done){
+  routes.User.find({}, function(err, users) {
+    console.log(users);
   });
+  done();
 }
 
 function createUsers(done, users){
+  for (var u=0; u<users.length;u++){
+    var user = new routes.User(users[u])
+    user.save()
+    .then(data => {
+        // console.log(data)
+    }).catch(err => {
+        console.error(err);
+    });
+  }
+  if (done){
+    done();
+  }
+}
 
-  routes.USER.create(users, function (err, result) {
-    if (err) {
-      console.error("Could not create users: "+err.toString())
-    } else{
-      console.log('created 10 accounts in DynamoDB');
-      done();
+function removeUsers(done){
+  routes.User.remove({}, function(err, res){
+    if (err){
+      console.error(err);
+      if (done){done()};
     }
+    // console.log(res);
+    if (done){done()};
   });
 }
 
@@ -259,152 +269,199 @@ function createUsers(done, users){
 
 // })
 
-// describe('DELETE /users/:id', () => {
-//   beforeAll((done) => {
-//     routes.dynamo.createTables(function(err) {
-//       if (err) {
-//           console.log('Error creating tables: ', err);
-//       } else {
-//           console.log('Tables has been created');
-//           var fake_users = []
-//           fake_users.push({
-//             id: "test",
-//             email: faker.internet.email(),
-//             ipaddress:faker.internet.ip(),
-//             disabled: false
-//           })
-//           createUsers(done, fake_users);
-//       }
-//     });
-//   });
-
-//   afterAll((done) => {
-//     routes.USER.deleteTable(function(err) {
-//       if (err) {
-//           console.log('Error destroying tables: ', err);
-//       } else {
-//           console.log('Tables has been destroyed');
-//           done();
-//       }
-//     });
-//   });
-
-//   it('should have status 404: Not Found if user does not exist', async () => {
-//     const res = await request(app)
-//       .delete('/users/fjadfasdfis')
-//       .expect('Content-Type', /json/)
-//       .expect(400);
-//   })
-
-//   it('should have status 200 and items in response if user found', async () => {
-//     const res = await request(app)
-//       .delete('/users/test')
-//       .expect('Content-Type', /json/)
-//       .expect(200);
-
-//     // no data in res TODO
-//   })
-// })
-
-// describe('PUT /users/:id', () => {
-//   beforeAll((done) => {
-//     routes.dynamo.createTables(function(err) {
-//       if (err) {
-//           console.log('Error creating tables: ', err);
-//       } else {
-//           console.log('Tables has been created');
-//           var fake_users = []
-//           fake_users.push({
-//             id: "test",
-//             email: faker.internet.email(),
-//             ipaddress:faker.internet.ip(),
-//             macaddress: faker.internet.mac(),
-//             disabled: false
-//           })
-//           createUsers(done, fake_users);
-//       }
-//     });
-//   });
-
-//   afterAll((done) => {
-//     routes.USER.deleteTable(function(err) {
-//       if (err) {
-//           console.log('Error destroying tables: ', err);
-//       } else {
-//           console.log('Tables has been destroyed');
-//           done();
-//       }
-//     });
-//   });
-
-//   it('should have status 404: Not Found if user does not exist', async () => {
-//     const res = await request(app)
-//       .put('/users/fjadfasdfis')
-//       .send({})
-//       .expect('Content-Type', /html/)
-//       .expect(404);
-//   })
-
-//   it('should have status 400 if no content in submitted body', async () => {
-//     const res = await request(app)
-//       .put('/users/test')
-//       .send({})
-//       .expect('Content-Type', /html/)
-//       .expect(404);
-//   })
-
-//   it('should have status 200', async () => {
-//     const res = await request(app)
-//       .put('/users/test')
-//       .send({})
-//       .expect('Content-Type', /html/)
-//       .expect(404);
-//   })
-// })
-
-
-describe('GET /users/top', () => {
+describe('DELETE /users/:id', () => {
   beforeAll((done) => {
-    routes.dynamo.createTables(function(err) {
-      if (err) {
-          console.log('Error creating tables: ', err);
-      } else {
-          console.log('Tables has been created');
-          var fake_users = []
-          for (var x=0; x<15; x++){
-            fake_users.push({
-              id: "test"+x.toString(),
-              email: faker.internet.email(),
-              ipaddress:faker.internet.ip(),
-              referralcount: x,
-              disabled: false
-            })
-          }
-          createUsers(done, fake_users);
-      }
-    });
+    var fake_users = []
+    fake_users.push({
+      id: "test",
+      referralcount: 0,
+      disabled: false
+    })
+    createUsers(done, fake_users);
   });
 
   afterAll((done) => {
-    routes.USER.deleteTable(function(err) {
-      if (err) {
-          console.log('Error destroying tables: ', err);
-      } else {
-          console.log('Tables has been destroyed');
-          done();
-      }
-    });
+    // logUsers(done);
+    removeUsers(done);
   });
 
-  it('should have status 200 and return the correct number of results in descending order', async () => {
+  it('should have status 401: Unauthorized if no auth', async () => {
     const res = await request(app)
-      .get('/top')
-      // .expect('Content-Type', /html/)
+      .delete('/users/fjadfasdfis')
+      .expect('Content-Type', /html/)
+      .expect(401);
+  })
+
+  it('should have status 400: Not Found if user does not exist', async () => {
+    const res = await request(app)
+      .delete('/users/fjadfasdfis')
+      .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+      .expect('Content-Type', /json/)
+      .expect(404);
+  })
+
+  it('should have status 200 and items in response if user found', async () => {
+    const res = await request(app)
+      .delete('/users/test')
+      .expect('Content-Type', /json/)
       .expect(200);
-    
-    console.log(res.body);
+
+    // no data in res TODO
   })
 })
+
+describe('PUT /users/:id', () => {
+  beforeAll((done) => {
+    var fake_users = []
+    fake_users.push({
+      id: "test",
+      referralcount: 0,
+      disabled: false
+    })
+    createUsers(done, fake_users);
+  });
+
+  afterAll((done) => {
+    // logUsers(done);
+    removeUsers(done);
+  });
+
+  it('should have status 401: Unauthorized if no auth', async () => {
+    const res = await request(app)
+      .put('/users/fjadfasdfis')
+      .send({})
+      .expect('Content-Type', /html/)
+      .expect(401);
+  })
+
+  it('should have status 400: Not Found if user does not exist', async () => {
+    const res = await request(app)
+      .put('/users/fjadfasdfis')
+      .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+      .send({
+        referralcount:2
+      })
+      .expect('Content-Type', /json/)
+      .expect(404);
+  })
+
+  it('should have status 400 if no content in submitted body', async () => {
+    const res = await request(app)
+      .put('/users/test')
+      .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+      .send({})
+      .expect('Content-Type', /json/)
+      .expect(400);
+  })
+
+  it('should have status 400 if wrong (extra) content in submitted body', async (done) => {
+    await routes.User.find({}, async function(err, u){
+      if (err){
+          console.log("errr",err);
+          //return done(err, null);
+      }else{
+        const res = await request(app)
+        .put('/users/'+u[0]._id)
+        .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+        .send({
+          invalid:2
+        })
+        .set('Accept', 'application/json')
+        // .expect('Content-Type', /json/)
+        .expect(200);
+        expect(parseInt(res.body.referralcount)).to.equal(0)
+        expect(parseInt(res.body.invalid)).to.be.NaN;
+        done();
+      }
+    });
+  })
+
+  it('should have status 200 and have updated the submitted value', async (done) => {
+    await routes.User.find({}, async function(err, u){
+      if (err){
+          console.log("errr",err);
+          //return done(err, null);
+      }else{
+        const res = await request(app)
+        .put('/users/'+u[0]._id)
+        .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+        .send({
+          referralcount:2
+        })
+        .set('Accept', 'application/json')
+        // .expect('Content-Type', /json/)
+        .expect(200);
+        expect(parseInt(res.body.referralcount)).to.equal(2)
+        done();
+      }
+    });
+    
+  })
+})
+
+
+// describe('GET /users/top', () => {
+//   beforeAll((done) => {
+//     var fake_users = []
+//     for (var x=0; x<250; x++){
+//       fake_users.push({
+//         id: "test"+x.toString(),
+//         email: faker.internet.email(),
+//         ipaddress:faker.internet.ip(),
+//         referralcount: x,
+//         disabled: false
+//       })
+//     }
+//     createUsers(done, fake_users);
+//   });
+
+//   afterAll((done) => {
+//     routes.User.remove({}, function(err, res){
+//       if (err){
+//         console.error(err);
+//         done();
+//       }
+//       // console.log(res);
+//       done();
+//     });
+//   });
+
+//   it('should have status 200 and return the correct number of results in descending order with screened output', async () => {
+//     const res = await request(app)
+//       .get('/top')
+//       // .expect('Content-Type', /html/)
+//       .expect(200);
+    
+//     console.log(res.body.length);
+//   })
+
+//   it('should have status 200 and return no more than max allowed amount', async () => {
+//     const res = await request(app)
+//       .get('/top')
+//       // .expect('Content-Type', /html/)
+//       .expect(200);
+    
+//     console.log(res.body.length);
+//   })
+
+//   it('should have status 200 and return number of results that were specified', async () => {
+//     const res = await request(app)
+//       .get('/top')
+//       // .expect('Content-Type', /html/)
+//       .expect(200);
+    
+//     console.log(res.body.length);
+//   })
+
+//   it('should return 404 if no users present', async () => {
+//     const res = await request(app)
+//       .get('/top')
+//       // .expect('Content-Type', /html/)
+//       .expect(200);
+    
+//     console.log(res.body.length);
+//   })
+// })
 
 
 describe('GET /users/position', () => {

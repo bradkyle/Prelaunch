@@ -5,7 +5,9 @@ const config = require('./config');
 const Joi = require('joi'); 
 var _ = require('lodash');
 const mongoose = require('mongoose');
-const joigoose = require("joigoose")(mongoose);
+const Joigoose = require("joigoose")(mongoose);
+const util = require('util')
+
 
 const USER_ROUTE = "users"
 const MONGO_URL = 'mongodb://localhost:27017';
@@ -30,12 +32,12 @@ var authConfig = {};
 authConfig[config.ADMIN_EMAIL.toString()] = config.ADMIN_PASSWORD.toString();
 const basicAuthFunc = basicAuth({users: authConfig});
 
-var JoiUserschema = Joi.object().keys({
-    id                : Joi.string().required(),
-    email             : Joi.string().email().required(),
-    ipaddress         : Joi.string().ip(),
+var JoiUserSchema = Joi.object({
+    id                : Joi.string(),
+    email             : Joi.string(),
+    ipaddress         : Joi.string(),
     referrerid        : Joi.string(),
-    hasrefferer       : Joi.boolean(),
+    hasrefferer       : Joi.string(),
     macaddress        : Joi.string(),
     firstname         : Joi.string(),
     lastname          : Joi.string(),
@@ -44,7 +46,7 @@ var JoiUserschema = Joi.object().keys({
     variantid         : Joi.string(),
     sourceurl         : Joi.string(),
     useragent         : Joi.string(),
-    timetillsignup    : Joi.number(),
+    timetillsignup    : Joi.string(),
     latitude          : Joi.string(),
     longitude         : Joi.string(),
     locale            : Joi.string(),
@@ -52,20 +54,53 @@ var JoiUserschema = Joi.object().keys({
     country           : Joi.string(),
     region            : Joi.string(),
     cookies           : Joi.string(),
-    emailsent         : Joi.boolean(),
-    emailopened       : Joi.boolean(),
-    disabled          : Joi.boolean(),
-    hasreferrals      : Joi.boolean(),
-    hasemail          : Joi.boolean(),
-    hasphone          : Joi.boolean(),
-    whatsappsent      : Joi.boolean(),
-    whatsappopened    : Joi.boolean(),
-    messagesent       : Joi.boolean(),
-    messageopened     : Joi.boolean(),
-    referralcount     : Joi.number().integer().min(0)
-})
+    emailsent         : Joi.string(),
+    emailopened       : Joi.string(),
+    disabled          : Joi.string(),
+    hasreferrals      : Joi.string(),
+    hasemail          : Joi.string(),
+    hasphone          : Joi.string(),
+    whatsappsent      : Joi.string(),
+    whatsappopened    : Joi.string(),
+    messagesent       : Joi.string(),
+    messageopened     : Joi.string(),
+    referralcount     : Joi.string(),
+});
 
-const UserSchema = new mongoose.Schema(joigoose.convert(JoiUserSchema));
+const UserSchema = new mongoose.Schema({
+    id                : String,
+    email             : String,
+    ipaddress         : String,
+    referrerid        : String,
+    macaddress        : String,
+    firstname         : String,
+    lastname          : String,
+    phonenumber       : String,
+    phonezone         : String,
+    variantid         : String,
+    sourceurl         : String,
+    useragent         : String,
+    timetillsignup    : String,
+    latitude          : String,
+    longitude         : String,
+    locale            : String,
+    language          : String,
+    country           : String,
+    region            : String,
+    cookies           : String,
+    hasrefferer       : {type: Boolean,default: false},
+    emailsent         : {type: Boolean,default: false},
+    emailopened       : {type: Boolean,default: false},
+    disabled          : {type: Boolean,default: false},
+    hasreferrals      : {type: Boolean,default: false},
+    hasemail          : {type: Boolean,default: false},
+    hasphone          : {type: Boolean,default: false},
+    whatsappsent      : {type: Boolean,default: false},
+    whatsappopened    : {type: Boolean,default: false},
+    messagesent       : {type: Boolean,default: false},
+    messageopened     : {type: Boolean,default: false},
+    referralcount     : {type:Number,default:0},
+});
 const User = mongoose.model('User', UserSchema);
 
 /* 
@@ -73,11 +108,11 @@ Retrieves a list of all users (must secure)
 */
 router.get('/'+ USER_ROUTE, basicAuthFunc, (req, res) => {
     User.find()
-    .then(notes => {
-        res.send(notes);
+    .then(users => {
+        res.send(users);
     }).catch(err => {
         res.status(500).send({
-            message: err.message || "Some error occurred while retrieving notes."
+            message: err.message || "Some error occurred while retrieving users."
         });
     });
 });
@@ -90,18 +125,18 @@ router.get('/'+USER_ROUTE+'/:id', (req, res) => {
     .then(user => {
         if(!user) {
             return res.status(404).send({
-                message: "Note not found with id " + req.params.id
+                message: "user not found with id " + req.params.id
             });            
         }
         res.send(user);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
-                message: "Note not found with id " + req.params.id
+                message: "user not found with id " + req.params.id
             });                
         }
         return res.status(500).send({
-            message: "Error retrieving note with id " + req.params.id
+            message: "Error retrieving user with id " + req.params.id
         });
     });
 });
@@ -110,26 +145,36 @@ router.get('/'+USER_ROUTE+'/:id', (req, res) => {
 Creates a new user
 */ // TODO increment referrer user id if it exists
 router.post('/'+USER_ROUTE, (req, res) => {
-    if(!req.body.content) {
+    if(!req.body) {
         return res.status(400).send({
-            message: "Note content can not be empty"
+            message: "user content can not be empty"
         });
     }
-
-    var user = new User(req.body.content)
-
+    var user = new User(req.body)
 
     if (user.hasrefferer || user.referrerid !== null){
         console.log("Has referrer!");
+        User.findByIdAndUpdate(user.referrerid, {$inc: { referralcount: 1 } }, {new: true})
+        .then(user => {
+            if(!user) {
+                console.error("user not found with id " + user.referrerid);
+            }
+            // TODO conditional notification
+        }).catch(err => {
+            if(err.kind === 'ObjectId') {
+                console.error("user not found with id " + user.referrerid);                
+            }
+            console.error("Error updating user with id " + user.referrerid);
+        });
     }
     
-    // Save Note in the database
+    // Save user in the database
     user.save()
     .then(data => {
         res.send(data);
     }).catch(err => {
         res.status(500).send({
-            message: err.message || "Some error occurred while creating the Note."
+            message: err.message || "Some error occurred while creating the user."
         });
     });
     
@@ -140,21 +185,21 @@ Deactivates a user
 */
 router.delete('/'+USER_ROUTE+'/:id', basicAuthFunc, (req, res) => {
     User.findByIdAndUpdate(req.params.id, {disabled:true}, {new: true})
-    .then(note => {
-        if(!note) {
+    .then(user => {
+        if(!user) {
             return res.status(404).send({
-                message: "Note not found with id " + req.params.id
+                message: "user not found with id " + req.params.id
             });
         }
-        res.send(note);
+        res.send(user);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
-                message: "Note not found with id " + req.params.id
+                message: "user not found with id " + req.params.id
             });                
         }
         return res.status(500).send({
-            message: "Error updating note with id " + req.params.id
+            message: "Error updating user with id " + req.params.id
         });
     });
 });
@@ -163,28 +208,27 @@ router.delete('/'+USER_ROUTE+'/:id', basicAuthFunc, (req, res) => {
 Updates a user
 */
 router.put('/'+USER_ROUTE+'/:id', basicAuthFunc, (req, res) => {
-    if(!req.body.content) {
+    if(!req.body || !Object.keys(req.body).length) {
         return res.status(400).send({
-            message: "Note content can not be empty"
+            message: "user content can not be empty"
         });
     }
-    
-    User.findByIdAndUpdate(req.params.id, req.body.content, {new: true})
-    .then(note => {
-        if(!note) {
+    User.findByIdAndUpdate(req.params.id, req.body, {new: true})
+    .then(user => {
+        if(!user) {
             return res.status(404).send({
-                message: "Note not found with id " + req.params.id
+                message: "user not found with id " + req.params.id
             });
         }
-        res.send(note);
+        res.send(user);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
-                message: "Note not found with id " + req.params.id
+                message: "user not found with id " + req.params.id
             });                
         }
         return res.status(500).send({
-            message: "Error updating note with id " + req.params.id
+            message: "Error updating user with id " + req.params.id
         });
     });
 });
@@ -192,15 +236,24 @@ router.put('/'+USER_ROUTE+'/:id', basicAuthFunc, (req, res) => {
 /* 
 Retrieves a list of top users by referral count with a limit and a maximum of 100
 */
-router.get('/top/:num', (req, res) => {
-    User.find().sort([['referralcount', 'descending']]).limit(Math.min(req.params.num, MAX_NUM_TOP)).all(function (users) {
-        if (!posts.length > 0){
-            return res.status(404).send({
-                message: "No users present"
-            });
-        } // TODO sanitize output
-        res.send(users)
-    });
+router.get('/top', (req, res) => {
+    try{
+        var num = MAX_NUM_TOP
+        if (req.query.num !== null){
+            num = Math.min(req.query.num, MAX_NUM_TOP);
+        }
+
+        User.find().sort({referralcount:-1}).limit(num).then(users => {
+            if (!users.length > 0){
+                return res.status(404).send({
+                    message: "No users present"
+                });
+            } // TODO sanitize output
+            res.send(users)
+        });
+    } catch (e) {
+        console.log(e);
+    }
 });
 
 /* 
@@ -211,22 +264,22 @@ router.get('/position/:id', (req, res) => {
     .then(user => {
         if(!user) {
             return res.status(404).send({
-                message: "Note not found with id " + req.params.id
+                message: "user not found with id " + req.params.id
             });            
         }
 
-        User.find({referralcount: {$gt: user.referralcount}}).count(function (err, position) {
+        User.find({referralcount: {$gt: user.referralcount}}).count(function (position) {
             res.send(position)
         });
 
     }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
-                message: "Note not found with id " + req.params.id
+                message: "user not found with id " + req.params.id
             });                
         }
         return res.status(500).send({
-            message: "Error retrieving note with id " + req.params.id
+            message: "Error retrieving user with id " + req.params.id
         });
     });
 
@@ -235,6 +288,5 @@ router.get('/position/:id', (req, res) => {
 
 module.exports = {
     router:router,
-    USER:USER,
-    dynamo:dynamo
-}
+    User:User
+};
