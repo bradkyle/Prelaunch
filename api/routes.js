@@ -123,45 +123,54 @@ function sendEmail(
     language,
     done
 ){
-    /*
-    Sends an email via the sendgrid.com API.
-    */
-    var userInfo = {
-        email: to,
-    }
-    
-    if (language in trans){
-        userInfo = Object.assign(userInfo, trans[language]())
-    } else if (language){
-        console.error("Language not in translations: "+language.toString())
-        userInfo = Object.assign(userInfo, trans["eng"]())
-    } else {
-        console.error("Language is null, using default")
-        userInfo = Object.assign(userInfo, trans["eng"]())
-    }
-
-    const hbsHtml = template(userInfo);
-    const templateMarkup = mjml(hbsHtml);
-
-    if (templateMarkup.errors.length === 0){
-        const msg = {
-            to: userInfo.email,
-            from: from,
-            subject: userInfo.subject,
-            html: templateMarkup.html
+    try{
+        /*
+        Sends an email via the sendgrid.com API.
+        */
+        var userInfo = {
+            email: to,
         }
-        sgMail.send(msg).then(() => {
-            console.log('Mail sent!');
-        }, (error) => {
-            console.log(error.message);    
-        });
-    } else {
-        console.error('There are errors in your MJML markup:');
-        console.error(templateMarkup.errors);
-    }
-    if (done){done()};
-}
+        
+        if (language in trans){
+            userInfo = Object.assign(userInfo, trans[language]())
+        } else if (language){
+            console.error("Language not in translations: "+language.toString())
+            userInfo = Object.assign(userInfo, trans["eng"]())
+        } else {
+            console.error("Language is null, using default")
+            userInfo = Object.assign(userInfo, trans["eng"]())
+        }
 
+        const hbsHtml = template(userInfo);
+        const templateMarkup = mjml(hbsHtml);
+
+        if (templateMarkup.errors.length === 0){
+            const msg = {
+                to: userInfo.email,
+                from: from,
+                subject: userInfo.subject,
+                html: templateMarkup.html
+            }
+            sgMail.send(msg).then(() => {
+                console.log('Mail sent!');
+            }, (error) => {
+                console.log(error.message);    
+            });
+        } else {
+            console.error('There are errors in your MJML markup:');
+            console.error(templateMarkup.errors);
+        }
+        if (done){done()};
+    } catch (e) {
+        console.error(e);
+        // TODO recursion
+        // if (retry_count && num_retrys) {
+        //     sendEmail(
+
+        //     )
+        // }
+    }
+}
 
 /* 
 Retrieves a list of all users (must secure)
@@ -420,7 +429,7 @@ router.get('/count', (req, res) => {
 
         User.find({disabled: false})
         .count().then(count => {
-            res.send(count)
+            res.send({count: count})
         });
     } catch (e) {
         console.log(e);
@@ -430,7 +439,5 @@ router.get('/count', (req, res) => {
 module.exports = {
     router:router,
     User:User,
-    sendEmail:sendEmail,
-    sendMessage:sendMessage,
-    sendWhatsapp:sendWhatsapp
+    sendEmail:sendEmail
 };

@@ -6,6 +6,7 @@ var faker = require('faker');
 faker.seed(123);
 var _ = require('lodash');
 var expect = require('chai').expect;
+const sinon = require('sinon');
 
 function genFakeUser(){
   return {
@@ -158,22 +159,69 @@ describe('GET /users/:id', () => {
   }) 
 })
 
-describe('POST /users', () => {
+var EMAIL_STUB;
+
+// TODO resend
+describe('POST /resend/:id', () => {
   beforeAll((done) => {
+    var fake_users = []
+    fake_users.push(genFakeUser())
+    createUsers(done, fake_users);
+  });
+
+  beforeEach((done) => {
+    EMAIL_STUB = sinon.stub(routes, "sendEmail");
     done();
   });
 
   afterEach((done) => {
     // logUsers(done);
+    sinon.restore();
+    removeUsers(done);
+  });
+
+  it('should resend email.', async () => {
+// 
+    await routes.User.find({}, async function(err, u){
+      if (err){
+          console.log("errr",err);
+          //return done(err, null);
+      }else{
+        const res = await request(app)
+          .post('/resend/'+u[0]._id)
+          .expect('Content-Type', /json/)
+          .expect(200);
+
+        assert(EMAIL_STUB.called);
+        done();
+      }
+    });
+    routes.sendEmail.restore();
+    
+  })
+
+})
+
+describe('POST /users', () => {
+  beforeEach((done) => {
+    EMAIL_STUB = sinon.stub(routes, "sendEmail");
+    done();
+  });
+
+  afterEach((done) => {
+    // logUsers(done);
+    sinon.restore();
     removeUsers(done);
   });
 
   it('should return status 200 and return user response if successful.', async () => {
+    
     const res = await request(app)
       .post('/users')
       .send(genFakeUser())
       .expect('Content-Type', /json/)
       .expect(200);
+    routes.sendEmail.restore();
   })
 
   it('should return status 400 if it has a parameter that is not supported.', async () => {
@@ -214,7 +262,6 @@ describe('POST /users', () => {
   it('should remove refferalcount / sanitize request.', async () => {
     var user = genFakeUser()
     var user = Object.assign(user, {referralcount:500})
-
     const res = await request(app)
       .post('/users')
       .send(user)
@@ -225,10 +272,6 @@ describe('POST /users', () => {
   it('should increment refferal users referral count if the user has been referred.', async () => {
     
   })  
-
-  it('should send email to the html email address specified.', async () => {
-
-  })
 
 })
 
@@ -409,8 +452,81 @@ describe('GET /users/top', () => {
 })
 
 // TODO should exclude disabled
-describe('GET /users/position', () => {
-  
+describe('GET /position/:id', () => {
+  beforeAll((done) => {
+    var fake_users = genFakeUsers(20)
+    createUsers(done, fake_users);
+  });
+
+  afterAll((done) => {
+    removeUsers(done);
+  });  
+
+  it('should return 200 with the count of users', async () => {
+    await routes.User.find({}, async function(err, u){
+      if (err){
+          console.log("errr",err);
+          //return done(err, null);
+      }else{
+        console.log("================================================");
+        console.log(await u);
+        const res = await request(app)
+        .put('/users/'+u[0]._id)
+        .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+        .send({
+          invalid:2
+        })
+        .set('Accept', 'application/json')
+        // .expect('Content-Type', /json/)
+        .expect(200);
+        expect(parseInt(res.body.referralcount)).to.equal(0)
+        expect(parseInt(res.body.invalid)).to.be.NaN;
+        done();
+      }
+    });
+  })
+
+  it('should exclude disabled records', async () => {
+    await routes.User.find({}, async function(err, u){
+      if (err){
+          console.log("errr",err);
+          //return done(err, null);
+      }else{
+        const res = await request(app)
+        .put('/users/'+u[0]._id)
+        .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+        .send({
+          invalid:2
+        })
+        .set('Accept', 'application/json')
+        // .expect('Content-Type', /json/)
+        .expect(200);
+        expect(parseInt(res.body.referralcount)).to.equal(0)
+        expect(parseInt(res.body.invalid)).to.be.NaN;
+        done();
+      }
+    });
+  })
 })
 
+// TODO should exclude disabled
+describe('GET /count', () => {
+  beforeAll((done) => {
+    var fake_users = genFakeUsers(20)
+    createUsers(done, fake_users);
+  });
 
+  afterAll((done) => {
+    removeUsers(done);
+  });  
+
+  it('should return 200 with the count of users', async () => {
+    const res = await request(app)
+      .get('/count')
+      .expect('Content-Type', /json/)
+      .expect(200);
+    
+    expect(res.body.count).to.eql(20);
+  })
+  
+})
