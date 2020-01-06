@@ -127,9 +127,7 @@ function sendEmail(
         /*
         Sends an email via the sendgrid.com API.
         */
-        var userInfo = {
-            email: to,
-        }
+        var userInfo = {email: to}
         
         if (language in trans){
             userInfo = Object.assign(userInfo, trans[language]())
@@ -160,7 +158,10 @@ function sendEmail(
             console.error('There are errors in your MJML markup:');
             console.error(templateMarkup.errors);
         }
-        if (done){done()};
+        if (done){
+            done()
+        };
+
     } catch (e) {
         console.error(e);
         // TODO recursion
@@ -390,6 +391,20 @@ router.get('/top', (req, res) => {
 /* 
 Retrieves a single users position in the waiting list.
 */
+router.get('/countn', (req, res) => {
+    User.find({disabled: false}).count()
+    .then(count => {
+        res.send({count: count})
+    }).catch(err => {
+        res.status(500).send({
+            message: err.message || "Some error occurred while retrieving users."
+        });
+    });
+});
+
+/* 
+Retrieves a single users position in the waiting list.
+*/
 router.get('/position/:id', (req, res) => {
     User.findById(req.params.id)
     .then(user => {
@@ -417,24 +432,6 @@ router.get('/position/:id', (req, res) => {
     });    
 });
 
-/* 
-Retrieves a single users position in the waiting list.
-*/
-router.get('/count', (req, res) => {
-    try{
-        var num = MAX_NUM_TOP
-        if (req.query.num !== null){
-            num = Math.min(req.query.num, MAX_NUM_TOP);
-        }
-
-        User.find({disabled: false})
-        .count().then(count => {
-            res.send({count: count})
-        });
-    } catch (e) {
-        console.log(e);
-    } 
-});
 
 module.exports = {
     router:router,

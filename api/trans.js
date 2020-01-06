@@ -25,7 +25,7 @@ module.exports = {
     },
     "span": function gen(){
         return {
-            subject: "Welcome to Axiom!",
+            subject: "Bienvenido a Axiom!",
             header_thank_you: "Gracias!",
             header_subtitle: "We have added your email address to the signup queue.",
             ahead_text: "354,156 People are ahead of you",

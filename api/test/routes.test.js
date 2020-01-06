@@ -121,86 +121,6 @@ describe('GET /users', () => {
 
 })
 
-describe('GET /users/:id', () => {
-  beforeAll((done) => {
-    var fake_users = []
-    fake_users.push(genFakeUser())
-    createUsers(done, fake_users);
-  });
-
-  afterAll((done) => {
-    // logUsers(done);
-    removeUsers(done);
-  });
-  
-  it('should have status 404 not found if user not found', async () => {
-    const res = await request(app)
-      .get('/users/fjadfasdfis')
-      .expect('Content-Type', /json/)
-      .expect(404);
-  })
-
-  //TODO validation
-  it('should have status 200 and items in response if user found', async () => {
-    await routes.User.find({}, async function(err, u){
-        if (err){
-            console.log("errr",err);
-            //return done(err, null);
-        }else{
-          const res = await request(app)
-          .get('/users/'+u[0]._id)
-          .set('Accept', 'application/json')
-          .expect('Content-Type', /json/)
-          .expect(200);
-          expect(res.body._id).to.equal(u[0]._id)
-          done();
-        }
-      });    
-  }) 
-})
-
-var EMAIL_STUB;
-
-// TODO resend
-describe('POST /resend/:id', () => {
-  beforeAll((done) => {
-    var fake_users = []
-    fake_users.push(genFakeUser())
-    createUsers(done, fake_users);
-  });
-
-  beforeEach((done) => {
-    EMAIL_STUB = sinon.stub(routes, "sendEmail");
-    done();
-  });
-
-  afterEach((done) => {
-    // logUsers(done);
-    sinon.restore();
-    removeUsers(done);
-  });
-
-  it('should resend email.', async () => {
-// 
-    await routes.User.find({}, async function(err, u){
-      if (err){
-          console.log("errr",err);
-          //return done(err, null);
-      }else{
-        const res = await request(app)
-          .post('/resend/'+u[0]._id)
-          .expect('Content-Type', /json/)
-          .expect(200);
-
-        assert(EMAIL_STUB.called);
-        done();
-      }
-    });
-    routes.sendEmail.restore();
-    
-  })
-
-})
 
 describe('POST /users', () => {
   beforeEach((done) => {
@@ -221,7 +141,6 @@ describe('POST /users', () => {
       .send(genFakeUser())
       .expect('Content-Type', /json/)
       .expect(200);
-    routes.sendEmail.restore();
   })
 
   it('should return status 400 if it has a parameter that is not supported.', async () => {
@@ -266,6 +185,7 @@ describe('POST /users', () => {
       .post('/users')
       .send(user)
       .expect(200);
+    console.log(res.body);
     expect(res.body.referralcount).to.eql(0);
   })  
 
@@ -273,6 +193,45 @@ describe('POST /users', () => {
     
   })  
 
+})
+
+
+describe('GET /users/:id', () => {
+  beforeAll((done) => {
+    var fake_users = []
+    fake_users.push(genFakeUser())
+    createUsers(done, fake_users);
+  });
+
+  afterAll((done) => {
+    // logUsers(done);
+    removeUsers(done);
+  });
+  
+  it('should have status 404 not found if user not found', async () => {
+    const res = await request(app)
+      .get('/users/fjadfasdfis')
+      .expect('Content-Type', /json/)
+      .expect(404);
+  })
+
+  //TODO validation
+  it('should have status 200 and items in response if user found', async () => {
+    await routes.User.find({}, async function(err, u){
+        if (err){
+            console.log("errr",err);
+            //return done(err, null);
+        }else{
+          const res = await request(app)
+          .get('/users/'+u[0]._id)
+          .set('Accept', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200);
+          expect(res.body._id).to.equal(u[0]._id)
+          done();
+        }
+      });    
+  }) 
 })
 
 describe('DELETE /users/:id', () => {
@@ -451,63 +410,6 @@ describe('GET /users/top', () => {
   })
 })
 
-// TODO should exclude disabled
-describe('GET /position/:id', () => {
-  beforeAll((done) => {
-    var fake_users = genFakeUsers(20)
-    createUsers(done, fake_users);
-  });
-
-  afterAll((done) => {
-    removeUsers(done);
-  });  
-
-  it('should return 200 with the count of users', async () => {
-    await routes.User.find({}, async function(err, u){
-      if (err){
-          console.log("errr",err);
-          //return done(err, null);
-      }else{
-        console.log("================================================");
-        console.log(await u);
-        const res = await request(app)
-        .put('/users/'+u[0]._id)
-        .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
-        .send({
-          invalid:2
-        })
-        .set('Accept', 'application/json')
-        // .expect('Content-Type', /json/)
-        .expect(200);
-        expect(parseInt(res.body.referralcount)).to.equal(0)
-        expect(parseInt(res.body.invalid)).to.be.NaN;
-        done();
-      }
-    });
-  })
-
-  it('should exclude disabled records', async () => {
-    await routes.User.find({}, async function(err, u){
-      if (err){
-          console.log("errr",err);
-          //return done(err, null);
-      }else{
-        const res = await request(app)
-        .put('/users/'+u[0]._id)
-        .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
-        .send({
-          invalid:2
-        })
-        .set('Accept', 'application/json')
-        // .expect('Content-Type', /json/)
-        .expect(200);
-        expect(parseInt(res.body.referralcount)).to.equal(0)
-        expect(parseInt(res.body.invalid)).to.be.NaN;
-        done();
-      }
-    });
-  })
-})
 
 // TODO should exclude disabled
 describe('GET /count', () => {
@@ -522,11 +424,118 @@ describe('GET /count', () => {
 
   it('should return 200 with the count of users', async () => {
     const res = await request(app)
-      .get('/count')
+      .get('/countn')
       .expect('Content-Type', /json/)
       .expect(200);
     
     expect(res.body.count).to.eql(20);
   })
   
+})
+
+// TODO should exclude disabled
+describe('GET /position/:id', () => {
+  beforeAll((done) => {
+    var fake_users = genFakeUsers(20)
+    createUsers(done, fake_users);
+  });
+
+  afterAll((done) => {
+    removeUsers(done);
+  });  
+
+  it('should return 200 with the count of users', async () => {
+    try{
+      await routes.User.find({}, async function(err, u){
+        if (err){
+            console.log("errr",err);
+            //return done(err, null);
+        }else{
+          const res = await request(app)
+          .put('/users/'+u[0]._id)
+          .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+          .send({
+            invalid:2
+          })
+          .set('Accept', 'application/json')
+          // .expect('Content-Type', /json/)
+          .expect(200);
+          expect(parseInt(res.body.referralcount)).to.equal(0)
+          expect(parseInt(res.body.invalid)).to.be.NaN;
+          done();
+        }
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  })
+
+  it('should exclude disabled records', async () => {
+    try{
+      await routes.User.find({}, async function(err, u){
+        if (err){
+            console.log("errr",err);
+            //return done(err, null);
+        }else{
+          const res = await request(app)
+          .put('/users/'+u[0]._id)
+          .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+          .send({
+            invalid:2
+          })
+          .set('Accept', 'application/json')
+          // .expect('Content-Type', /json/)
+          .expect(200);
+          expect(parseInt(res.body.referralcount)).to.equal(0)
+          expect(parseInt(res.body.invalid)).to.be.NaN;
+          done();
+        }
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  })
+})
+
+
+var EMAIL_STUB;
+
+// TODO resend
+describe('POST /resend/:id', () => {
+  beforeAll((done) => {
+    var fake_users = []
+    fake_users.push(genFakeUser())
+    createUsers(done, fake_users);
+  });
+
+  beforeEach((done) => {
+    EMAIL_STUB = sinon.stub(routes, "sendEmail");
+    done();
+  });
+
+  afterEach((done) => {
+    // logUsers(done);
+    sinon.restore();
+    removeUsers(done);
+  });
+
+  it('should resend email.', async () => {
+// 
+    await routes.User.find({}, async function(err, u){
+      if (err){
+          console.log("errr",err);
+          //return done(err, null);
+      }else{
+        const res = await request(app)
+          .post('/resend/'+u[0]._id)
+          .expect('Content-Type', /json/)
+          .expect(200);
+
+        assert(EMAIL_STUB.called);
+        done();
+      }
+    });
+    
+  })
+
 })
