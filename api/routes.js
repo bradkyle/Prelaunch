@@ -162,10 +162,6 @@ function sendEmail(
     if (done){done()};
 }
 
-function doOrRetry(){
-    
-}
-
 
 /* 
 Retrieves a list of all users (must secure)
@@ -204,6 +200,41 @@ router.get('/'+USER_ROUTE+'/:id', (req, res) => {
         });
     });
 });
+
+/* 
+Retrieves a single user by id
+*/
+router.post('/resend/:id', (req, res) => {
+    User.findById(req.params.id)
+    .then(user => {
+        if(!user) {
+            return res.status(404).send({
+                message: "user not found with id " + req.params.id
+            });            
+        }
+        var position = 0
+        var count = 0
+
+        routes.sendEmail(
+            position, 
+            count, 
+            user.email, 
+            config.ADMIN_EMAIL,  
+            user.language
+        )
+        res.send(user);
+    }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: "user not found with id " + req.params.id
+            });                
+        }
+        return res.status(500).send({
+            message: "Error retrieving user with id " + req.params.id
+        });
+    });
+});
+
 
 /* 
 Creates a new user
@@ -381,7 +412,19 @@ router.get('/position/:id', (req, res) => {
 Retrieves a single users position in the waiting list.
 */
 router.get('/count', (req, res) => {
-        
+    try{
+        var num = MAX_NUM_TOP
+        if (req.query.num !== null){
+            num = Math.min(req.query.num, MAX_NUM_TOP);
+        }
+
+        User.find({disabled: false})
+        .count().then(count => {
+            res.send(count)
+        });
+    } catch (e) {
+        console.log(e);
+    } 
 });
 
 module.exports = {

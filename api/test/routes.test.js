@@ -381,7 +381,6 @@ describe('GET /users/top', () => {
       // .expect('Content-Type', /html/)
       .expect(200);
     
-    console.log(res.body.length);
   })
 
   it('should have status 200 and return no more than max allowed amount', async () => {
@@ -390,7 +389,6 @@ describe('GET /users/top', () => {
       // .expect('Content-Type', /html/)
       .expect(200);
     
-    console.log(res.body.length);
   })
 
   it('should have status 200 and return number of results that were specified', async () => {
@@ -399,7 +397,6 @@ describe('GET /users/top', () => {
       // .expect('Content-Type', /html/)
       .expect(200);
     
-    console.log(res.body.length);
   })
 
   it('should return 404 if no users present', async () => {
@@ -408,7 +405,6 @@ describe('GET /users/top', () => {
       // .expect('Content-Type', /html/)
       .expect(200);
     
-    console.log(res.body.length);
   })
 })
 
