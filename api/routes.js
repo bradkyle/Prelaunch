@@ -6,19 +6,15 @@ const trans = require('./trans');
 const Joi = require('joi'); 
 var _ = require('lodash');
 const mongoose = require('mongoose');
-const Joigoose = require("joigoose")(mongoose);
-const util = require('util')
 const handlebars = require('handlebars');
-const chalk = require('chalk');
 const mjml = require('mjml');
 const sgMail = require('@sendgrid/mail');
 const fs = require('fs');
 
 const USER_ROUTE = "users"
-const MONGO_URL = 'mongodb://localhost:27017';
-const DB_NAME = 'prelaunch';
-const MAX_NUM_TOP = 100
-const SENDGRID_API_KEY = "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"
+const MONGO_URL = config.MONGO_URL;
+const MAX_NUM_TOP = config.TOP_LIMIT
+const SENDGRID_API_KEY = config.SENDGRID_API_KEY
 sgMail.setApiKey(SENDGRID_API_KEY);
 
 console.log('Reading content from example.hbs template...');
@@ -172,6 +168,16 @@ function sendEmail(
         // }
     }
 }
+
+/* 
+Retrieves a list of all users (must secure)
+*/
+router.get('/', (req, res) => {
+    res.send({
+        message: "Greetings Axiomite!"
+    });
+});
+
 
 /* 
 Retrieves a list of all users (must secure)
