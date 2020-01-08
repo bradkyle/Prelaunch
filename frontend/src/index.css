@@ -1,0 +1,30 @@
+
+@import "~normalize.css";
+@import "~@blueprintjs/core/lib/css/blueprint.css";
+@import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
+@import '~rsuite/dist/styles/rsuite-default.css';
+
+body { 
+    background: #fefefe;
+
+}
+
+.container {
+    background: white !important
+}
+
+.center { 
+    text-align: center;
+}
+
+h1 { 
+    font-weight: bold;
+}
+
+.content {
+    padding-top: 40px;
+}
+
+.card-wrapper {
+    padding-bottom: 10px;
+}

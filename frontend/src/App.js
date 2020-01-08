@@ -10,7 +10,10 @@ import { useState, useEffect } from 'react';
 import { geolocated } from "react-geolocated";
 import axios from 'axios';
 import ReactGA from 'react-ga';
+
 import FacebookLogin from 'react-facebook-login';
+import GoogleLogin from 'react-google-login';
+
 import {
   BrowserRouter as Router,
   Switch,
@@ -20,6 +23,33 @@ import {
   useParams
 } from "react-router-dom";
 
+import {
+  EmailShareButton,
+  FacebookShareButton,
+  InstapaperShareButton,
+  LineShareButton,
+  LinkedinShareButton,
+  LivejournalShareButton,
+  MailruShareButton,
+  OKShareButton,
+  PinterestShareButton,
+  PocketShareButton,
+  RedditShareButton,
+  TelegramShareButton,
+  TumblrShareButton,
+  TwitterShareButton,
+  ViberShareButton,
+  VKShareButton,
+  WhatsappShareButton,
+  WorkplaceShareButton,
+  WeiboShareButton
+} from "react-share";
+import { Button, Card, Elevation, Divider, FileInput, FormGroup, H5, InputGroup  } from "@blueprintjs/core";
+import { Steps } from 'rsuite';
+
+import PrivacyPage from './pages/Privacy'
+import AboutPage from './pages/About'
+import TermsPage from './pages/Terms'
 
 const publicIp = require('public-ip');
 const { UserAgent } = require("react-useragent");
@@ -64,7 +94,6 @@ class Demo extends React.Component {
   }
 }
 
-
 class ShakingError extends React.Component {
 	constructor() { super(); this.state = { key: 0 }; }
 
@@ -77,29 +106,6 @@ class ShakingError extends React.Component {
   	return <div key={this.state.key} className="bounce">{this.props.text}</div>;
   }
 }
-
-class AboutPage extends React.Component {
-  constructor() {
-    super();
-    this.state = {};
-  }
-
-  componentDidMount() {
-    console.log('I was triggered during componentDidMount')
-  }
-
-  render() {
-  	const { res, invalid, displayErrors } = this.state;
-    return (
-    	<div>
-        <h1>About Axiom</h1>
-        <p>Invest your money from anywhere with up to 20x leverage</p>
-    	</div>
-    );
-  }
-}
-
-
 
 class UserPage extends React.Component {
 
@@ -136,13 +142,86 @@ class UserPage extends React.Component {
     }
   }
 
+  handleCopy(){
+
+  }
+
+  handleCopyText(){
+
+  }
 
   render() {
     return (
-    	<div>
-        <h1>Axiom User</h1>
-        <p>You have {this.userData()} invitations</p>
-        <span>{}</span>
+    	<div className="container content">
+      
+        <h1 className="center">364 000 People ahead of you</h1>
+        <p className="center">You have {this.userData()} invitations</p>
+
+        <div className="card-wrapper">
+          <Card interactive={false} elevation={Elevation.ONE}>
+            <h5><a href="#">Card heading</a></h5>
+            <Steps current={1}>
+            <Steps.Item title="Finished" description="Description" />
+            <Steps.Item title="Finished" description="Description" />
+            <Steps.Item title="Finished" description="Description" />
+            <Steps.Item title="Finished" description="Description" />
+            <Steps.Item title="Finished" description="Description" />
+          </Steps>
+          </Card>
+        </div>
+        <div className="card-wrapper">
+          <Card interactive={false} elevation={Elevation.ONE}>
+            <div className="social-actions">
+              <FacebookShareButton url="www.github.com">
+              facebook
+              </FacebookShareButton>
+              <br></br>
+              <WhatsappShareButton url="www.github.com">
+              whatsapp
+              </WhatsappShareButton>
+              <br></br>
+
+              <TwitterShareButton url="www.github.com">
+              twitter
+              </TwitterShareButton>
+              <br></br>
+
+              <LinkedinShareButton url="www.github.com">
+              linkedin
+              </LinkedinShareButton>
+              <br></br>
+
+              <VKShareButton url="www.github.com">
+              vkonnecte
+              </VKShareButton>
+              <br></br>
+
+              <WeiboShareButton url="www.github.com">
+              weibo
+              </WeiboShareButton>
+              <br></br>
+
+              <EmailShareButton url="www.github.com">
+              email
+              </EmailShareButton>
+              <br></br>
+
+              <RedditShareButton url="www.github.com">
+              reddit
+              </RedditShareButton>
+              <br></br>
+
+              <TelegramShareButton url="www.github.com">
+              telegram
+              </TelegramShareButton>
+            </div>
+            <Divider />
+            <div className="">
+                <h5 className="center">Or share this unique link</h5>
+                <InputGroup placeholder="Choose file..." onChange={this.handleCopyText} value="bradkyleduncan@gmail.com" />
+            </div>
+        </Card>
+        </div>
     	</div>
     );
   }
@@ -217,12 +296,20 @@ class FrontPage extends React.Component {
       })
   }
 
+  handleFacebookLogin(event) {
+    console.log(event)
+  }
+
+  handleGoogleLogin(event) {
+    console.log(event)
+  }
+
   render() {
   	const { res, invalid, displayErrors } = this.state;
     return (
-    	<div>
-        <h1>Axiom</h1>
-        <p>Invest your money from anywhere with up to 20x leverage</p>
+    	<div className="container content">
+        <h1 className="center">Axiom</h1>
+        <p className="center">Invest your money from anywhere with up to 20x leverage</p>
 
         <form
           onSubmit={this.handleSubmit}
@@ -233,7 +320,21 @@ class FrontPage extends React.Component {
           <button type="submit" className="inline">Get Early Access</button>
           <p>Already registered? <a href="/user">Check your rank</a></p>
         </form>
-        
+        {/* <FacebookLogin
+          appId="445074949709489"
+          autoLoad={true}
+          fields="name,email,picture"
+          // onClick={componentClicked}
+          callback={this.handleFacebookLogin} 
+          />
+
+          <GoogleLogin
+            clientId="" //CLIENTID NOT CREATED YET
+            buttonText="LOGIN WITH GOOGLE"
+            onSuccess={this.handleGoogleLogin}
+            onFailure={this.handleGoogleLogin}
+          /> */}
+
         
         <div className="res-block">
           {invalid && (
@@ -255,6 +356,12 @@ export default function App() {
           </Route>
           <Route path="/user">
             <UserPage />
+          </Route>
+          <Route path="/privacy">
+            <PrivacyPage />
+          </Route>
+          <Route path="/terms">
+            <TermsPage />
           </Route>
           <Route path="/">
             <FrontPage />

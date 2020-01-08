@@ -199,37 +199,59 @@ Retrieves a single user by id # TODO get position
 */
 router.get('/'+USER_ROUTE+'/find', (req, res) => {
 
-    if (req.params.id) {
+    if (req.query.id) {
 
         // TODO sanitize
-        var id = req.params.id
+        var id = req.query.id
 
-        User.findById(req.params.id)
+        User.findById(req.query.id)
         .then(user => {
             if(!user) {
                 return res.status(404).send({
-                    message: "user not found with id " + req.params.id
+                    message: "user not found with id " + req.query.id
                 });            
             }
             res.send(user);
         }).catch(err => {
             if(err.kind === 'ObjectId') {
                 return res.status(404).send({
-                    message: "user not found with id " + req.params.id
+                    message: "user not found with id " + req.query.id
                 });                
             }
             return res.status(500).send({
-                message: "Error retrieving user with id " + req.params.id
+                message: "Error retrieving user with id " + req.query.id
             });
         });
 
     // find by email
-    } else if (req.params.email) {
+    } else if (req.query.email) {
 
         // TODO sanitize
-        var email = req.params.email 
+        var email = req.query.email 
     
+        User.find({email: email})
+        .then(user => {
+            if(!user) {
+                return res.status(404).send({
+                    message: "user not found with email " + req.query.email
+                });            
+            }
+            res.send(user);
+        }).catch(err => {
+            if(err.kind === 'ObjectId') {
+                return res.status(404).send({
+                    message: "user not found with email: " + req.query.email
+                });                
+            }
+            return res.status(500).send({
+                message: "Error retrieving user with email: " + req.query.email
+            });
+        });
     
+    } else {
+        return res.status(500).send({
+            message: "Please provide a correct email or ip query parameter."
+        });
     }
     
 });
