@@ -6,86 +6,54 @@ import { FormInput } from "shards-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
 
-import getMAC, { isMAC } from 'getmac'
+import { useState, useEffect } from 'react';
+import { geolocated } from "react-geolocated";
+import axios from 'axios';
+import ReactGA from 'react-ga';
+import FacebookLogin from 'react-facebook-login';
 
 const publicIp = require('public-ip');
 const { UserAgent } = require("react-useragent");
-const Joi = require('joi'); 
 
+ReactGA.initialize('UA-000000-01');
 
-
-// const ipv4 = await publicIp.v4()
-// const ipv6 = await publicIp.v6()
-
-function getData() {
-  var data = {
-    mac: getMAC(),
-    ipv4: null,
-    ipv6: null,
-    useragent: null,
-    cookies: null,
-
+class Demo extends React.Component {
+  render() {
+      return !this.props.isGeolocationAvailable ? (
+          <div>Your browser does not support Geolocation</div>
+      ) : !this.props.isGeolocationEnabled ? (
+          <div>Geolocation is not enabled</div>
+      ) : this.props.coords ? (
+          <table>
+              <tbody>
+                  <tr>
+                      <td>latitude</td>
+                      <td>{this.props.coords.latitude}</td>
+                  </tr>
+                  <tr>
+                      <td>longitude</td>
+                      <td>{this.props.coords.longitude}</td>
+                  </tr>
+                  <tr>
+                      <td>altitude</td>
+                      <td>{this.props.coords.altitude}</td>
+                  </tr>
+                  <tr>
+                      <td>heading</td>
+                      <td>{this.props.coords.heading}</td>
+                  </tr>
+                  <tr>
+                      <td>speed</td>
+                      <td>{this.props.coords.speed}</td>
+                  </tr>
+              </tbody>
+          </table>
+      ) : (
+          <div>Getting the location data&hellip; </div>
+      );
   }
 }
 
-function constructSubmission() {
-    var submission = {
-        email             : Joi.string().email().required(),
-        ipv4address       : Joi.string().ip(),
-        ipv6address       : Joi.string().ip(),
-        macaddress        : Joi.string(),
-        firstname         : Joi.string(),
-        lastname          : Joi.string(),
-        phonenumber       : Joi.string(),
-        phonezone         : Joi.string(),
-        variantid         : Joi.string(),
-        sourceurl         : Joi.string(),
-        useragent         : Joi.string(),
-        timetillsignup    : Joi.number(),
-        latitude          : Joi.string(),
-        longitude         : Joi.string(),
-        locale            : Joi.string(),
-        language          : Joi.string(),
-        country           : Joi.string(),
-        region            : Joi.string(),
-        cookies           : Joi.string(),
-        emailsent         : Joi.boolean(),
-        emailopened       : Joi.boolean(),
-        disabled          : Joi.boolean(),
-        hasreferrals      : Joi.boolean(),
-        hasemail          : Joi.boolean(),
-        hasphone          : Joi.boolean(),
-        whatsappsent      : Joi.boolean(),
-        whatsappopened    : Joi.boolean(),
-        messagesent       : Joi.boolean(),
-        messageopened     : Joi.boolean(),
-        referralcount     : Joi.number().integer().min(0)
-    }
-}
-
-const inputParsers = {
-  date(input) {
-    const split = input.split('/');
-    const day = split[1]
-    const month = split[0];
-    const year = split[2];
-    return `${year}-${month}-${day}`;
-  },
-  uppercase(input) {
-    return input.toUpperCase();
-  },
-  number(input) {
-    return parseFloat(input);
-  },
-};
-
-function stringifyFormData(fd) {
-  const data = {};
-	for (let key of fd.keys()) {
-  	data[key] = fd.get(key);
-  }
-  return JSON.stringify(data, null, 2);
-}
 
 class ShakingError extends React.Component {
 	constructor() { super(); this.state = { key: 0 }; }
@@ -107,6 +75,10 @@ class MyForm extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  componentDidMount() {
+    console.log('I was triggered during componentDidMount')
+  }
+
   handleSubmit(event) {
     event.preventDefault();
     if (!event.target.checkValidity()) {
@@ -116,29 +88,51 @@ class MyForm extends React.Component {
       });
       return;
     }
+
     const form = event.target;
     const data = new FormData(form);
 
-    for (let name of data.keys()) {
-      const input = form.elements[name];
-      const parserName = input.dataset.parse;
-      console.log('parser name is', parserName);
-      if (parserName) {
-        const parsedValue = inputParsers[parserName](data.get(name))
-        data.set(name, parsedValue);
-      }
+    // const ipv4 = await publicIp.v4() || "";
+    // const ipv6 = await publicIp.v6() || "";
+    const ipv4 = 0
+    const ipv6 = 0
+
+    var submission = {
+        email             : this.email.value,
+        ipv4address       : ipv4,
+        ipv6address       : ipv6,
+        firstname         : "",
+        lastname          : "",
+        phonezone         : 0,
+        phonenumber       : "",
+        screenheight      : 0,
+        screenwidth       : 0,
+        variantid         : 0,
+        sourceurl         : 0,
+        useragent         : 0,
+        timetillsignup    : 0,
+        latitude          : 0,
+        longitude         : 0,
+        locale            : 0,
+        language          : 0,
+        country           : 0,
+        region            : 0,
+        cookies           : 0,
     }
+
+    alert('The value is: ' + JSON.stringify(submission));
     
     this.setState({
-    	res: stringifyFormData(data),
+    	res: JSON.stringify(data),
       invalid: false,
       displayErrors: false,
     });
 
-    // fetch('/api/form-submit-url', {
-    //   method: 'POST',
-    //   body: data,
-    // });
+    // axios.post(`localhost:5000/users`, { user })
+    //   .then(res => {
+    //     console.log(res);
+    //     console.log(res.data);
+    //   })
   }
 
   render() {
@@ -152,10 +146,9 @@ class MyForm extends React.Component {
          >
           <h1>Axiom</h1>
           <p>Invest your money from anywhere with up to 20x leverage</p>
-          <input className="inline" id="email" name="email" type="email" placeholder="Enter email address" required />
-          <button className="inline">Get Early Access</button>
+          <input className="inline" id="email" name="email" type="email" ref={(email) => this.email = email} placeholder="Enter email address" required />
+          <button type="submit" className="inline">Get Early Access</button>
         </form>
-        
         
         <div className="res-block">
           {invalid && (
@@ -178,6 +171,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        <Demo/>
         <MyForm />
       </header>
     </div>

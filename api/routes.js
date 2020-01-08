@@ -12,7 +12,7 @@ const sgMail = require('@sendgrid/mail');
 const fs = require('fs');
 
 const USER_ROUTE = "users"
-const MONGO_URL = config.MONGO_URL;
+const MONGO_URL = config.MONGO_URL || 'mongodb://localhost:27017';
 const MAX_NUM_TOP = config.TOP_LIMIT
 const SENDGRID_API_KEY = config.SENDGRID_API_KEY
 sgMail.setApiKey(SENDGRID_API_KEY);
@@ -170,7 +170,7 @@ function sendEmail(
 }
 
 /* 
-Retrieves a list of all users (must secure)
+Simple response
 */
 router.get('/', (req, res) => {
     res.send({
@@ -231,7 +231,7 @@ router.post('/resend/:id', (req, res) => {
         var position = 0
         var count = 0
 
-        routes.sendEmail(
+        sendEmail(
             position, 
             count, 
             user.email, 
@@ -293,7 +293,7 @@ router.post('/'+USER_ROUTE, (req, res) => {
             // Save user in the database
             user.save()
             .then(user => {
-                routes.sendEmail(
+                sendEmail(
                     position, 
                     count, 
                     user.email, 

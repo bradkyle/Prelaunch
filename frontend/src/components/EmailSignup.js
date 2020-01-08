@@ -1,5 +1,5 @@
 
-class MyForm extends React.Component {
+class EmailSignup extends React.Component {
     constructor() {
       super();
       this.handleSubmit = this.handleSubmit.bind(this);
@@ -8,6 +8,8 @@ class MyForm extends React.Component {
     handleSubmit(event) {
       event.preventDefault();
       const data = new FormData(event.target);
+
+      
       
       fetch('/api/form-submit-url', {
         method: 'POST',

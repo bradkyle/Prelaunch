@@ -1,0 +1,35 @@
+const Joi = require('joi'); 
+
+module.exports = {
+    email             : Joi.string().email().required(),
+    ipv4address       : Joi.string().ip(),
+    ipv6address       : Joi.string().ip(),
+    macaddress        : Joi.string(),
+    firstname         : Joi.string(),
+    lastname          : Joi.string(),
+    phonenumber       : Joi.string(),
+    phonezone         : Joi.string(),
+    variantid         : Joi.string(),
+    sourceurl         : Joi.string(),
+    useragent         : Joi.string(),
+    timetillsignup    : Joi.number(),
+    latitude          : Joi.string(),
+    longitude         : Joi.string(),
+    locale            : Joi.string(),
+    language          : Joi.string(),
+    country           : Joi.string(),
+    region            : Joi.string(),
+    cookies           : Joi.string(),
+    emailsent         : Joi.boolean(),
+    emailopened       : Joi.boolean(),
+    disabled          : Joi.boolean(),
+    hasreferrals      : Joi.boolean(),
+    hasemail          : Joi.boolean(),
+    hasphone          : Joi.boolean(),
+    whatsappsent      : Joi.boolean(),
+    whatsappopened    : Joi.boolean(),
+    messagesent       : Joi.boolean(),
+    messageopened     : Joi.boolean(),
+    referralcount     : Joi.number().integer().min(0)
+}
+
