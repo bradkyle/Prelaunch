@@ -36,7 +36,7 @@ mongoose.connect(MONGO_URL, {
 const router = express.Router();
 
 var authConfig = {};
-authConfig[config.ADMIN_EMAIL.toString()] = config.ADMIN_PASSWORD.toString();
+authConfig[config.ADMIN_USERNAME.toString()] = config.ADMIN_PASSWORD.toString();
 const basicAuthFunc = basicAuth({users: authConfig});
 
 // TODO serve images
@@ -182,7 +182,7 @@ router.get('/', (req, res) => {
 /* 
 Retrieves a list of all users (must secure)
 */
-router.get('/'+ USER_ROUTE, basicAuthFunc, (req, res) => {
+router.get('/'+ USER_ROUTE+'/all', basicAuthFunc, (req, res) => {
     User.find({disabled: false})
     .then(users => {
         res.send(users);
@@ -193,28 +193,45 @@ router.get('/'+ USER_ROUTE, basicAuthFunc, (req, res) => {
     });
 });
 
+
 /* 
-Retrieves a single user by id
+Retrieves a single user by id # TODO get position
 */
-router.get('/'+USER_ROUTE+'/:id', (req, res) => {
-    User.findById(req.params.id)
-    .then(user => {
-        if(!user) {
-            return res.status(404).send({
-                message: "user not found with id " + req.params.id
-            });            
-        }
-        res.send(user);
-    }).catch(err => {
-        if(err.kind === 'ObjectId') {
-            return res.status(404).send({
-                message: "user not found with id " + req.params.id
-            });                
-        }
-        return res.status(500).send({
-            message: "Error retrieving user with id " + req.params.id
+router.get('/'+USER_ROUTE+'/find', (req, res) => {
+
+    if (req.params.id) {
+
+        // TODO sanitize
+        var id = req.params.id
+
+        User.findById(req.params.id)
+        .then(user => {
+            if(!user) {
+                return res.status(404).send({
+                    message: "user not found with id " + req.params.id
+                });            
+            }
+            res.send(user);
+        }).catch(err => {
+            if(err.kind === 'ObjectId') {
+                return res.status(404).send({
+                    message: "user not found with id " + req.params.id
+                });                
+            }
+            return res.status(500).send({
+                message: "Error retrieving user with id " + req.params.id
+            });
         });
-    });
+
+    // find by email
+    } else if (req.params.email) {
+
+        // TODO sanitize
+        var email = req.params.email 
+    
+    
+    }
+    
 });
 
 /* 
@@ -257,6 +274,7 @@ Creates a new user
 */ // TODO increment referrer user id if it exists
 router.post('/'+USER_ROUTE, (req, res) => {
     try{
+
         if(!req.body) {
             return res.status(400).send({
                 message: "user content can not be empty"

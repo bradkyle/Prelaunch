@@ -11,18 +11,28 @@ import { geolocated } from "react-geolocated";
 import axios from 'axios';
 import ReactGA from 'react-ga';
 import FacebookLogin from 'react-facebook-login';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  useRouteMatch,
+  useParams
+} from "react-router-dom";
+
 
 const publicIp = require('public-ip');
 const { UserAgent } = require("react-useragent");
+var faker = require('faker');
 
 ReactGA.initialize('UA-000000-01');
 
 class Demo extends React.Component {
   render() {
       return !this.props.isGeolocationAvailable ? (
-          <div>Your browser does not support Geolocation</div>
+        <span></span>
       ) : !this.props.isGeolocationEnabled ? (
-          <div>Geolocation is not enabled</div>
+          <span></span>
       ) : this.props.coords ? (
           <table>
               <tbody>
@@ -68,7 +78,77 @@ class ShakingError extends React.Component {
   }
 }
 
-class MyForm extends React.Component {
+class AboutPage extends React.Component {
+  constructor() {
+    super();
+    this.state = {};
+  }
+
+  componentDidMount() {
+    console.log('I was triggered during componentDidMount')
+  }
+
+  render() {
+  	const { res, invalid, displayErrors } = this.state;
+    return (
+    	<div>
+        <h1>About Axiom</h1>
+        <p>Invest your money from anywhere with up to 20x leverage</p>
+    	</div>
+    );
+  }
+}
+
+
+
+class UserPage extends React.Component {
+
+  state = {
+    user: null
+  }
+
+  constructor() {
+    super();
+  }
+
+  getUser() {
+    axios.get('http://localhost:5000/users/5e15f538e59ae69c48fd1053')
+    .then(response => this.setState({user: response.data}))
+    .catch(err => console.log(err))
+  }
+
+  componentDidMount() {
+    this.getUser()
+  }
+
+  userData(){
+    if (this.state.user !== null) {
+      var user = this.state.user;
+
+      if (user.referralcount == 0){
+        return 0
+      } else if (user.referralcount > 0) {
+        return 1
+      } else if (user.referralcount < 0) {
+        return 1
+      }
+
+    }
+  }
+
+
+  render() {
+    return (
+    	<div>
+        <h1>Axiom User</h1>
+        <p>You have {this.userData()} invitations</p>
+        <span>{}</span>
+    	</div>
+    );
+  }
+}
+
+class FrontPage extends React.Component {
   constructor() {
     super();
     this.state = {};
@@ -99,25 +179,25 @@ class MyForm extends React.Component {
 
     var submission = {
         email             : this.email.value,
-        ipv4address       : ipv4,
-        ipv6address       : ipv6,
-        firstname         : "",
-        lastname          : "",
-        phonezone         : 0,
-        phonenumber       : "",
-        screenheight      : 0,
-        screenwidth       : 0,
-        variantid         : 0,
-        sourceurl         : 0,
-        useragent         : 0,
-        timetillsignup    : 0,
-        latitude          : 0,
-        longitude         : 0,
-        locale            : 0,
-        language          : 0,
-        country           : 0,
-        region            : 0,
-        cookies           : 0,
+        ipaddress         : faker.internet.ip(),
+        // ipv6address       : ipv6,
+        // firstname         : "",
+        // lastname          : "",
+        // phonezone         : 0,
+        // phonenumber       : "",
+        // screenheight      : 0,
+        // screenwidth       : 0,
+        // variantid         : 0,
+        // sourceurl         : 0,
+        // useragent         : 0,
+        // timetillsignup    : 0,
+        // latitude          : 0,
+        // longitude         : 0,
+        // locale            : 0,
+        // language          : 0,
+        // country           : 0,
+        // region            : 0,
+        // cookies           : 0,
     }
 
     alert('The value is: ' + JSON.stringify(submission));
@@ -128,37 +208,36 @@ class MyForm extends React.Component {
       displayErrors: false,
     });
 
-    // axios.post(`localhost:5000/users`, { user })
-    //   .then(res => {
-    //     console.log(res);
-    //     console.log(res.data);
-    //   })
+    axios.post(`http://localhost:5000/users`, submission)
+      .then(res => {
+        console.log(res);
+        console.log(res.data);
+      }).catch(err =>{
+        console.error(err)
+      })
   }
 
   render() {
   	const { res, invalid, displayErrors } = this.state;
     return (
     	<div>
+        <h1>Axiom</h1>
+        <p>Invest your money from anywhere with up to 20x leverage</p>
+
         <form
           onSubmit={this.handleSubmit}
           noValidate
           className={displayErrors ? 'displayErrors' : ''}
          >
-          <h1>Axiom</h1>
-          <p>Invest your money from anywhere with up to 20x leverage</p>
           <input className="inline" id="email" name="email" type="email" ref={(email) => this.email = email} placeholder="Enter email address" required />
           <button type="submit" className="inline">Get Early Access</button>
+          <p>Already registered? <a href="/user">Check your rank</a></p>
         </form>
+        
         
         <div className="res-block">
           {invalid && (
             <ShakingError text="Form is not valid" />
-          )}
-          {!invalid && res && (
-          	<div>
-              <h3>Transformed data to be sent:</h3>
-              <pre>FormData {res}</pre>
-          	</div>
           )}
         </div>
     	</div>
@@ -166,16 +245,23 @@ class MyForm extends React.Component {
   }
 }
 
-function App() {
-
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <Demo/>
-        <MyForm />
-      </header>
-    </div>
+    <Router>
+      <div>
+        <Switch>
+          <Route path="/about">
+            <AboutPage />
+          </Route>
+          <Route path="/user">
+            <UserPage />
+          </Route>
+          <Route path="/">
+            <FrontPage />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
   );
 }
 
-export default App;
