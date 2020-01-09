@@ -5,12 +5,11 @@
 @import '~rsuite/dist/styles/rsuite-default.css';
 
 body { 
-    background: #fefefe;
-
+    background: #fafafa!important;
 }
 
 .container {
-    background: white !important
+    background: #fafafa !important
 }
 
 .center { 
@@ -224,6 +223,12 @@ h1 {
 }
 
 .more-social-cards-button{
-    display: inline;
-    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+}
+
+.blue-card:hover {
+    cursor: pointer;
+    background: rgba(48,117,238,.15);
+    border: 1px solid #4e88f0;
 }

@@ -33,7 +33,7 @@ export default class MainNavbar extends React.Component {
           <Navbar>
             <div className="container opaque">
               <NavbarGroup>
-              <h4 className="logo-white">Axiom</h4>
+              <a href="/"><h4 className="logo-white">Axiom</h4></a>
               </NavbarGroup>
               <NavbarGroup className="bp3-dark" align={Alignment.RIGHT}>
                 <Menu>

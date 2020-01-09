@@ -8,6 +8,10 @@ import { FormInput } from "shards-react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fab } from '@fortawesome/free-brands-svg-icons';
+import { 
+  faEnvelope, 
+  faKey 
+} from '@fortawesome/free-solid-svg-icons';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
@@ -72,16 +76,18 @@ import {
   ButtonGroup 
 } from "@blueprintjs/core";
 
-import { Steps } from 'rsuite';
+import { Steps, Footer } from 'rsuite';
 
 import PrivacyPage from './pages/Privacy'
 import AboutPage from './pages/About'
 import TermsPage from './pages/Terms'
 import LeaderboardPage from './pages/Leaderboard'
 import PressPage from './pages/Press'
+import RewardsPage from './pages/Rewards'
 
 
 import MainNavbar from './components/MainNavBar'
+import MainFooter from './components/MainFooter'
 
 const publicIp = require('public-ip');
 const { UserAgent } = require("react-useragent");
@@ -89,7 +95,7 @@ var faker = require('faker');
 
 ReactGA.initialize('UA-000000-01');
 
-library.add(fab);
+library.add(fab, faEnvelope);
 
 class Demo extends React.Component {
   render() {
@@ -149,6 +155,7 @@ class UserPage extends React.Component {
 
   constructor() {
     super();
+    this.share_url="www.google.com"
   }
 
   getUser() {
@@ -214,64 +221,73 @@ class UserPage extends React.Component {
         <div className="card-wrapper">
           <Card interactive={false} elevation={Elevation.ONE}>
             <div className="social-actions box">
-            <div className = "social-card-container">
-              <Card interactive={false} elevation={Elevation.ONE} className="social-share-card  fb">
-                <FacebookShareButton url="www.github.com">
-                <FontAwesomeIcon icon={['fab', 'facebook']} className="fa-3x"/>
-                <p className="social-share-name">share</p>
-                </FacebookShareButton>
-              </Card>
-            </div>
-            <div className = "social-card-container">
-              <Card interactive={false} elevation={Elevation.ONE} className="social-share-card">
-                <FacebookShareButton url="www.github.com">
-                <FontAwesomeIcon icon={['fab', 'twitter']} className="fa-3x"/>
-                <p className="social-share-name">share</p>
-                </FacebookShareButton>
-              </Card>
-            </div>
-            <div className = "social-card-container">
-              <Card interactive={false} elevation={Elevation.ONE} className="social-share-card">
-                <FacebookShareButton url="www.github.com">
-                <FontAwesomeIcon icon={['fab', 'linkedin']} className="fa-3x"/>
-                <p className="social-share-name">share</p>
-                </FacebookShareButton>
-              </Card>
-            </div>
-            <div className = "social-card-container">
-              <Card interactive={false} elevation={Elevation.ONE} className="social-share-card">
-                <FacebookShareButton url="www.github.com">
-                <FontAwesomeIcon icon={['fab', 'reddit']} className="fa-3x"/>
-                <p className="social-share-name">share</p>
-                </FacebookShareButton>
-              </Card>
-            </div>
-            <div className = "social-card-container">
-              <Card interactive={false} elevation={Elevation.ONE} className="social-share-card">
-                <FacebookShareButton url="www.github.com">
-                <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
-                <p className="social-share-name">share</p>
-                </FacebookShareButton>
-              </Card>
-            </div>
-            </div>
-            <Divider />
-            <Button className="more-social-cards-button">show more</Button>
-            
+                <div className = "social-card-container">
+                  <Card interactive={false} elevation={Elevation.ONE} className="social-share-card  fb blue-card">
+                    <FacebookShareButton url={this.share_url}>
+                    <FontAwesomeIcon icon={['fab', 'facebook']} className="fa-3x"/>
+                    <p className="social-share-name">share</p>
+                    </FacebookShareButton>
+                  </Card>
+                </div>
+                <div className = "social-card-container">
+                  <Card interactive={false} elevation={Elevation.ONE} className="social-share-card blue-card">
+                    <TwitterShareButton url={this.share_url}>
+                    <FontAwesomeIcon icon={['fab', 'twitter']} className="fa-3x"/>
+                    <p className="social-share-name">share</p>
+                    </TwitterShareButton>
+                  </Card>
+                </div>
+                <div className = "social-card-container">
+                  <Card interactive={false} elevation={Elevation.ONE} className="social-share-card blue-card">
+                    <LinkedinShareButton url={this.share_url}>
+                    <FontAwesomeIcon icon={['fab', 'linkedin']} className="fa-3x"/>
+                    <p className="social-share-name">share</p>
+                    </LinkedinShareButton>
+                  </Card>
+                </div>
+                <div className = "social-card-container">
+                  <Card interactive={false} elevation={Elevation.ONE} className="social-share-card blue-card">
+                    <RedditShareButton url={this.share_url}>
+                    <FontAwesomeIcon icon={['fab', 'reddit']} className="fa-3x"/>
+                    <p className="social-share-name">share</p>
+                    </RedditShareButton>
+                  </Card>
+                </div>
+                <div className = "social-card-container">
+                  <Card interactive={false} elevation={Elevation.ONE} className="social-share-card blue-card">
+                    <WeiboShareButton url={this.share_url}>
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <p className="social-share-name">share</p>
+                    </WeiboShareButton>
+                  </Card>
+                </div>
+                <div className = "social-card-container">
+                  <Card interactive={false} elevation={Elevation.ONE} className="social-share-card blue-card">
+                    <EmailShareButton url={this.share_url}>
+                    <FontAwesomeIcon icon='envelope' className="fa-3x"/>
+                    <p className="social-share-name">email</p>
+                    </EmailShareButton>
+                  </Card>
+                </div>
+                <div className = "social-card-container">
+                  <Card interactive={false} elevation={Elevation.ONE} className="social-share-card blue-card">
+                    <VKShareButton url={this.share_url}>
+                    <FontAwesomeIcon icon={['fab', 'vk']} className="fa-3x"/>
+                    <p className="social-share-name">share</p>
+                    </VKShareButton>
+                  </Card>
+                </div>
+            </div>  
+            <Divider></Divider>
+            <h5 className="center"><a href="#">Or share this unique link</a></h5>
+              <InputGroup 
+                onChange={this.handleCopyText} 
+                large={true} 
+                value="ax.exchange?ref=dfjhasoidfhaosdfnadsifhsdofij" 
+                className="link-share-selector"
+              />          
         </Card>
-        </div>
-        <div className="card-wrapper">
-          <Card interactive={false} elevation={Elevation.ONE}>
-                <h5 className="center"><a href="#">Or share this unique link</a></h5>
-                <InputGroup 
-                  onChange={this.handleCopyText} 
-                  large={true} 
-                  value="ax.exchange?ref=dfjhasoidfhaosdfnadsifhsdofij" 
-                  className="link-share-selector"
-                />
-          </Card>
-        </div>
-        
+        </div>      
 
     	</div>
       </div>
@@ -408,19 +424,7 @@ class FrontPage extends React.Component {
             <p className="front-page-email-input-text center">We will never post to your pages</p>
           </div>
           </div>
-          <div className="front-page-footer">
-            <div className="container">
-                <ul className="bp3-list-unstyled">
-                  <li><a href="/about">About</a></li>
-                  <li><a href="/press">Press</a></li>
-                  <li><a href="/about">Rewards</a></li>
-                  <li><a href="/leaderboard">Leaderboard</a></li>
-                  <li><a href="/privacy">Privacy</a></li>
-                  <li><a href="/terms">Terms</a></li>
-                  <li><a href="/user">Your rank</a></li>
-                </ul>
-            </div>
-          </div>
+          <MainFooter/>
           <div className="res-block">
             {invalid && (
               <ShakingError text="Form is not valid" />
@@ -444,6 +448,9 @@ export default function App() {
           </Route>
           <Route path="/user">
             <UserPage />
+          </Route>
+          <Route path="/rewards">
+            <RewardsPage />
           </Route>
           <Route path="/leaderboard">
             <LeaderboardPage />

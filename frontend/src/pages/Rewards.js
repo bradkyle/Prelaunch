@@ -2,7 +2,7 @@ import React from 'react';
 
 import MainNavbar from '../components/MainNavBar'
 
-export default class AboutPage extends React.Component {
+export default class RewardsPage extends React.Component {
     constructor() {
       super();
       this.state = {};
@@ -18,7 +18,7 @@ export default class AboutPage extends React.Component {
           <div>
           <MainNavbar className="main-navbar"></MainNavbar>
           <div className="container content">
-          <h1>About Axiom</h1>
+          <h1>Axiom Prelaunch Rewards</h1>
             <div class="staticContent affiliates "><p>Axiom offers a complete affiliate program as well as rewards for top referrers.</p>
             <p>This prelaunch program offers the following benefits:</p>
             <ul>
