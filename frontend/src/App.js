@@ -78,6 +78,7 @@ import PrivacyPage from './pages/Privacy'
 import AboutPage from './pages/About'
 import TermsPage from './pages/Terms'
 import LeaderboardPage from './pages/Leaderboard'
+import PressPage from './pages/Press'
 
 
 import MainNavbar from './components/MainNavBar'
@@ -192,7 +193,8 @@ class UserPage extends React.Component {
     	<div className="container content">
 
         <div className="card-wrapper">
-          <Card interactive={false} elevation={Elevation.ONE}>
+          <Card interactive={false} elevation={Elevation.ONE} className="rltve main-user-banner">
+            <div className="stage-banner"></div>
             <h1 className="center main-text">364 000 People ahead of you</h1>
             <p className="center">You have {this.userData()} referrals</p>
           </Card>
@@ -415,6 +417,7 @@ class FrontPage extends React.Component {
                   <li><a href="">Leaderboard</a></li>
                   <li><a href="">Privacy</a></li>
                   <li><a href="">Terms</a></li>
+                  <li><a href="">Your rank</a></li>
                 </ul>
             </div>
           </div>
@@ -450,6 +453,9 @@ export default function App() {
           </Route>
           <Route path="/terms">
             <TermsPage />
+          </Route>
+          <Route path="/press">
+            <PressPage />
           </Route>
           <Route path="/">
             <FrontPage />
