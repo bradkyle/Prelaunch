@@ -1,7 +1,13 @@
+
+
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { FormInput } from "shards-react";
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fab } from '@fortawesome/free-brands-svg-icons';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
@@ -44,18 +50,44 @@ import {
   WorkplaceShareButton,
   WeiboShareButton
 } from "react-share";
-import { Button, Card, Elevation, Divider, FileInput, FormGroup, H5, InputGroup  } from "@blueprintjs/core";
+
+import { 
+  Button, 
+  Card, 
+  Elevation, 
+  Divider, 
+  FileInput, 
+  FormGroup, 
+  H5, 
+  InputGroup , 
+  Navbar,
+  NavbarDivider,
+  NavbarGroup,
+  NavbarHeading,
+  Menu,
+  MenuItem,
+  Alignment,
+  Position,
+  Popover
+} from "@blueprintjs/core";
+
 import { Steps } from 'rsuite';
 
 import PrivacyPage from './pages/Privacy'
 import AboutPage from './pages/About'
 import TermsPage from './pages/Terms'
+import LeaderboardPage from './pages/Leaderboard'
+
+
+import MainNavbar from './components/MainNavBar'
 
 const publicIp = require('public-ip');
 const { UserAgent } = require("react-useragent");
 var faker = require('faker');
 
 ReactGA.initialize('UA-000000-01');
+
+library.add(fab);
 
 class Demo extends React.Component {
   render() {
@@ -151,78 +183,95 @@ class UserPage extends React.Component {
   }
 
   render() {
+    
+
     return (
+      <div>
+      <MainNavbar className="main-navbar"></MainNavbar>
     	<div className="container content">
-      
-        <h1 className="center">364 000 People ahead of you</h1>
-        <p className="center">You have {this.userData()} invitations</p>
 
         <div className="card-wrapper">
           <Card interactive={false} elevation={Elevation.ONE}>
-            <h5><a href="#">Card heading</a></h5>
+            <h1 className="center main-text">364 000 People ahead of you</h1>
+            <p className="center">You have {this.userData()} referrals</p>
+          </Card>
+        </div>
+
+        <div className="card-wrapper">
+          <Card interactive={false} elevation={Elevation.ONE}>
             <Steps current={1}>
-            <Steps.Item title="Finished" description="Description" />
-            <Steps.Item title="Finished" description="Description" />
-            <Steps.Item title="Finished" description="Description" />
-            <Steps.Item title="Finished" description="Description" />
-            <Steps.Item title="Finished" description="Description" />
+            <Steps.Item title="Refer at least 10 people" description="Earn 30% commission on referral trades" />
+            <Steps.Item title="Refer at least 100 people" description="Earn 50% commission on referral trades" />
+            <Steps.Item title="Refer at least 500 people" description="Earn 100% commission on referral trades" />
+            <Steps.Item title="Be in our top 10 referrers" description="Earn 10,000 shares of Axiom stock" />
+            <Steps.Item title="Be our number 1 referrer" description="Earn 60,000 shares of Axiom stock" />
           </Steps>
           </Card>
         </div>
         <div className="card-wrapper">
           <Card interactive={false} elevation={Elevation.ONE}>
-            <div className="social-actions">
-              <FacebookShareButton url="www.github.com">
-              facebook
-              </FacebookShareButton>
-              <br></br>
-              <WhatsappShareButton url="www.github.com">
-              whatsapp
-              </WhatsappShareButton>
-              <br></br>
-
-              <TwitterShareButton url="www.github.com">
-              twitter
-              </TwitterShareButton>
-              <br></br>
-
-              <LinkedinShareButton url="www.github.com">
-              linkedin
-              </LinkedinShareButton>
-              <br></br>
-
-              <VKShareButton url="www.github.com">
-              vkonnecte
-              </VKShareButton>
-              <br></br>
-
-              <WeiboShareButton url="www.github.com">
-              weibo
-              </WeiboShareButton>
-              <br></br>
-
-              <EmailShareButton url="www.github.com">
-              email
-              </EmailShareButton>
-              <br></br>
-
-              <RedditShareButton url="www.github.com">
-              reddit
-              </RedditShareButton>
-              <br></br>
-
-              <TelegramShareButton url="www.github.com">
-              telegram
-              </TelegramShareButton>
+            <div className="social-actions box">
+            <div className = "social-card-container">
+              <Card interactive={false} elevation={Elevation.ONE} className="social-share-card  fb">
+                <FacebookShareButton url="www.github.com">
+                <FontAwesomeIcon icon={['fab', 'facebook']} className="fa-3x"/>
+                <p className="social-share-name">share</p>
+                </FacebookShareButton>
+              </Card>
+            </div>
+            <div className = "social-card-container">
+              <Card interactive={false} elevation={Elevation.ONE} className="social-share-card">
+                <FacebookShareButton url="www.github.com">
+                <FontAwesomeIcon icon={['fab', 'twitter']} className="fa-3x"/>
+                <p className="social-share-name">share</p>
+                </FacebookShareButton>
+              </Card>
+            </div>
+            <div className = "social-card-container">
+              <Card interactive={false} elevation={Elevation.ONE} className="social-share-card">
+                <FacebookShareButton url="www.github.com">
+                <FontAwesomeIcon icon={['fab', 'linkedin']} className="fa-3x"/>
+                <p className="social-share-name">share</p>
+                </FacebookShareButton>
+              </Card>
+            </div>
+            <div className = "social-card-container">
+              <Card interactive={false} elevation={Elevation.ONE} className="social-share-card">
+                <FacebookShareButton url="www.github.com">
+                <FontAwesomeIcon icon={['fab', 'reddit']} className="fa-3x"/>
+                <p className="social-share-name">share</p>
+                </FacebookShareButton>
+              </Card>
+            </div>
+            <div className = "social-card-container">
+              <Card interactive={false} elevation={Elevation.ONE} className="social-share-card">
+                <FacebookShareButton url="www.github.com">
+                <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                <p className="social-share-name">share</p>
+                </FacebookShareButton>
+              </Card>
+            </div>
             </div>
             <Divider />
-            <div className="">
-                <h5 className="center">Or share this unique link</h5>
-                <InputGroup placeholder="Choose file..." onChange={this.handleCopyText} value="bradkyleduncan@gmail.com" />
-            </div>
+            <Button className="more-social-cards-button">show more</Button>
+            
         </Card>
         </div>
+        <div className="card-wrapper">
+          <Card interactive={false} elevation={Elevation.ONE}>
+                <h5 className="center"><a href="#">Or share this unique link</a></h5>
+                <InputGroup 
+                  onChange={this.handleCopyText} 
+                  large={true} 
+                  value="ax.exchange?ref=dfjhasoidfhaosdfnadsifhsdofij" 
+                  className="link-share-selector"
+                />
+          </Card>
+        </div>
+        
+
     	</div>
+      </div>
     );
   }
 }
@@ -306,45 +355,71 @@ class FrontPage extends React.Component {
 
   render() {
   	const { res, invalid, displayErrors } = this.state;
+    
+    const submitButton = (
+      <Button minimal={true} >
+          Get Early Access
+      </Button>
+  );
+   
+    
     return (
-    	<div className="container content">
-        <h1 className="center">Axiom</h1>
-        <p className="center">Invest your money from anywhere with up to 20x leverage</p>
+      <div className="front-page">
+        <div className="container content">
+          <h1 className="center logo-white logo">Axiom</h1>
+          <h2 className="center subtitle">Invest your money from anywhere with up to 20x leverage</h2>
+          <p className="center">Get early access, life-time annuity and stock, yup stock from referring your friends.</p>
+          <div className="row">
+          <div className="col-md-6">
+          <form
+            onSubmit={this.handleSubmit}
+            noValidate
+            className={displayErrors ? 'displayErrors' : ''}
+          >
+            <InputGroup 
+              onChange={this.handleCopyText} 
+              large={true} 
+              placeholder="Email address"
+              rightElement={submitButton}
+              className="front-page-email-input"
+            />
+            <p className="front-page-email-input-text center">Already registered? <a href="/user">Check your rank</a></p>
+          </form>
+          </div>
+          <div className="col-md-6">
+          {/* <FacebookLogin
+            appId="445074949709489"
+            autoLoad={true}
+            fields="name,email,picture"
+            // onClick={componentClicked}
+            callback={this.handleFacebookLogin} 
+            /> */}
 
-        <form
-          onSubmit={this.handleSubmit}
-          noValidate
-          className={displayErrors ? 'displayErrors' : ''}
-         >
-          <input className="inline" id="email" name="email" type="email" ref={(email) => this.email = email} placeholder="Enter email address" required />
-          <button type="submit" className="inline">Get Early Access</button>
-          <p>Already registered? <a href="/user">Check your rank</a></p>
-        </form>
-        {/* <FacebookLogin
-          appId="445074949709489"
-          autoLoad={true}
-          fields="name,email,picture"
-          // onClick={componentClicked}
-          callback={this.handleFacebookLogin} 
-          />
+            <GoogleLogin
+              clientId="" //CLIENTID NOT CREATED YET
+              buttonText="JOIN WITH GOOGLE"
+              onSuccess={this.handleGoogleLogin}
+              onFailure={this.handleGoogleLogin}
+              className="fill"
+            />
+            <p className="front-page-email-input-text center">We will never post to your pages</p>
+          </div>
+          </div>
+          
 
-          <GoogleLogin
-            clientId="" //CLIENTID NOT CREATED YET
-            buttonText="LOGIN WITH GOOGLE"
-            onSuccess={this.handleGoogleLogin}
-            onFailure={this.handleGoogleLogin}
-          /> */}
-
-        
-        <div className="res-block">
-          {invalid && (
-            <ShakingError text="Form is not valid" />
-          )}
+          
+          <div className="res-block">
+            {invalid && (
+              <ShakingError text="Form is not valid" />
+            )}
+          </div>
         </div>
-    	</div>
+      </div>
     );
   }
 }
+
+
 
 export default function App() {
   return (
@@ -356,6 +431,9 @@ export default function App() {
           </Route>
           <Route path="/user">
             <UserPage />
+          </Route>
+          <Route path="/leaderboard">
+            <LeaderboardPage />
           </Route>
           <Route path="/privacy">
             <PrivacyPage />

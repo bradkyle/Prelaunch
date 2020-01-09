@@ -26,5 +26,118 @@ h1 {
 }
 
 .card-wrapper {
-    padding-bottom: 10px;
+    padding-bottom: 15px;
+}
+
+.bp3-navbar {
+    background-image: url('https://img.bafang.com/cdn/assets/imgs/MjAxOTU/4B1BF28498F423173F2920D131E28EDD.png');
+    background-color: #0b1229;
+    background-size:80%;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.logo-white {
+    font-family: 'Montserrat', sans-serif;
+    color: white !important;
+    padding-top: 10px;
+}
+
+.main-text {
+    font-weight: 800;
+}
+
+.opaque {
+    background: none !important;
+    position: relative;
+}
+
+.box {
+    display: flex;
+}
+
+.social-actions {
+    padding-bottom: 10px
+}
+
+.social-card-container{
+    flex: 1 1 auto;
+    /* width:20% */
+    padding:5px;
+    text-align: center !important;
+
+}
+
+.fb {
+    
+}
+
+.social-share-card{
+    padding:0px;
+}
+
+.social-share-card > button {
+    height: 100%;
+    width: 100%
+}
+
+.social-share-card > button > .fa-3x {
+    display: block;
+    margin: 0px auto;
+    margin-bottom: 5px;
+    margin-top:10px;
+}
+
+.link-share-section {
+    padding-top:15px
+}
+
+.social-share-name{
+    display: block;
+    margin-bottom: 10px;
+    padding: 0px;
+}
+
+.link-share-selector > .bp3-input{
+    box-shadow: none !important;
+    border: 1px solid silver;
+    text-align: center;
+}
+
+.more-social-cards-button {
+    display: inline-block;
+    margin: 0px auto;
+
+}
+
+.front-page {
+    background: #030717;
+    min-height: 100vh;
+    background-image: url('https://img.bafang.com/cdn/assets/imgs/MjAxOTU/4B1BF28498F423173F2920D131E28EDD.png');
+    background-size: 60%;
+    background-position: center top;
+    background-repeat: no-repeat;
+}
+
+.front-page > .container {
+    background: none !important;
+    padding-top:250px;
+}
+
+.front-page-email-input-text{
+    margin-top: 10px;
+}
+
+.fill {
+    width: 100%;
+    text-align: center;
+}
+
+.fill > span{
+    width: 100%
+}
+
+.subtitle {
+    font-weight: 400;
+    color:silver
 }

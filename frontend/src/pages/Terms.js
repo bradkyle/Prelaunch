@@ -1,5 +1,6 @@
 import React from 'react';
 
+import MainNavbar from '../components/MainNavBar'
 
 export default class TermsPage extends React.Component {
     constructor() {
@@ -14,6 +15,8 @@ export default class TermsPage extends React.Component {
     render() {
         const { res, invalid, displayErrors } = this.state;
       return (
+        <div>
+        <MainNavbar className="main-navbar"></MainNavbar>
         <div className="container content">
             <h1>Axiom Terms</h1>
             <div class="staticContent terms "><p><em>These terms were prepared in the English language and the English language version shall prevail in the event of any conflict, discrepancy or ambiguity between translations.</em></p>
@@ -269,6 +272,7 @@ export default class TermsPage extends React.Component {
             <h3 id="17-Dispute-Resolution"><a class="header-anchor" href="#17-Dispute-Resolution">17. Dispute Resolution</a></h3>
             <p>Subject to the Applicable Law of your jurisdiction, the courts of England have non-exclusive jurisdiction to settle any dispute arising from or connected with these Terms (including a dispute relating to the existence, validity or termination of these Terms or the consequences of their nullity or any non-contractual obligation arising out of or in connection with these Terms).</p>
             </div>
+        </div>
         </div>
       );
     }

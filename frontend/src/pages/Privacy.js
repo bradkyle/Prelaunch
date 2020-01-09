@@ -1,5 +1,6 @@
 import React from 'react';
 
+import MainNavbar from '../components/MainNavBar'
 
 export default class PrivacyPage extends React.Component {
     constructor() {
@@ -14,6 +15,8 @@ export default class PrivacyPage extends React.Component {
     render() {
         const { res, invalid, displayErrors } = this.state;
       return (
+        <div>
+          <MainNavbar className="main-navbar"></MainNavbar>
           <div className="container content">
           <h1>Privacy Notice</h1>
           <div class="staticContent privacyPolicy "><p><em>This notice was prepared in the English language and the English language version shall prevail in the event of any conflict, discrepancy or ambiguity between translations.</em></p>
@@ -164,6 +167,7 @@ export default class PrivacyPage extends React.Component {
   <h3 id="Getting-in-touch-with-us"><a class="header-anchor" href="#Getting-in-touch-with-us">Getting in touch with us</a></h3>
   <p>If you have any questions or concerns about how we process your data, would like to exercise any rights (e.g. to opt out of direct marketing), you can get in touch with our contact point for privacy queries at <a href="mailto:privacy@bitmex.com">privacy@bitmex.com</a>.</p>
   </div>
+          </div>
           </div>
       );
     }

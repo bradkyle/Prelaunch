@@ -1,5 +1,7 @@
 import React from 'react';
 
+import MainNavbar from '../components/MainNavBar'
+
 export default class AboutPage extends React.Component {
     constructor() {
       super();
@@ -13,6 +15,8 @@ export default class AboutPage extends React.Component {
     render() {
         const { res, invalid, displayErrors } = this.state;
       return (
+          <div>
+          <MainNavbar className="main-navbar"></MainNavbar>
           <div className="container content">
           <h1>About Axiom</h1>
             <div class="staticContent affiliates "><p>BitMEX offers a complete affiliate program.</p>
@@ -55,6 +59,7 @@ export default class AboutPage extends React.Component {
             </tbody>
             </table>
             <p>Payouts are made daily at 12:01 UTC.</p>
+          </div>
           </div>
           </div>
       );
