@@ -169,6 +169,10 @@ function sendEmail(
     }
 }
 
+function get_position(id){
+    
+}
+
 /* 
 Simple response
 */
