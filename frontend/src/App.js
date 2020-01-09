@@ -405,9 +405,9 @@ class FrontPage extends React.Component {
             <p className="front-page-email-input-text center">We will never post to your pages</p>
           </div>
           </div>
+          <div className="front-page-footer">
           
-
-          
+          </div>
           <div className="res-block">
             {invalid && (
               <ShakingError text="Form is not valid" />

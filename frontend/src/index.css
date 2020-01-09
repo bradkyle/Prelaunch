@@ -141,3 +141,12 @@ h1 {
     font-weight: 400;
     color:silver
 }
+
+.front-page-footer{
+    height: 50px;
+    width:100%;
+    background: #060d24;
+    position: absolute;
+    bottom:0px;
+    left:0px;
+}

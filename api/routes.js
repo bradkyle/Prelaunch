@@ -313,6 +313,8 @@ router.post('/'+USER_ROUTE, (req, res) => {
             }
 
             if (user.hasrefferer || user.referrerid){
+                // TODO your in the top 500 , 100, 50, 60 etc.
+
                 User.findByIdAndUpdate(user.referrerid, {$inc: { referralcount: 1 } }, {new: true})
                 .then(user => {
                     if(!user) {
