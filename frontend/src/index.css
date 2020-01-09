@@ -112,11 +112,12 @@ h1 {
 
 .front-page {
     background: #030717;
-    min-height: 100vh;
+    height: 100vh;
     background-image: url('https://img.bafang.com/cdn/assets/imgs/MjAxOTU/4B1BF28498F423173F2920D131E28EDD.png');
     background-size: 60%;
     background-position: center top;
     background-repeat: no-repeat;
+    overflow:hidden;
 }
 
 .front-page > .container {
@@ -143,10 +144,34 @@ h1 {
 }
 
 .front-page-footer{
-    height: 50px;
+    height: 60px;
     width:100%;
     background: #060d24;
     position: absolute;
     bottom:0px;
     left:0px;
+    color:white;
+    display: flex;
+}
+
+.front-page-footer > .container{
+    background: none !important;
+}
+
+.front-page-footer ul {
+    padding-top:15px;
+    margin:0px auto;
+    display: flex;
+}
+
+.front-page-footer ul li{
+    flex: 1 1 auto;
+    display: inline-block;
+    text-align: center;
+    color: grey;
+}
+
+
+.front-page-footer ul a{
+    color: grey;
 }

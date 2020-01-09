@@ -68,7 +68,8 @@ import {
   MenuItem,
   Alignment,
   Position,
-  Popover
+  Popover,
+  ButtonGroup 
 } from "@blueprintjs/core";
 
 import { Steps } from 'rsuite';
@@ -406,7 +407,16 @@ class FrontPage extends React.Component {
           </div>
           </div>
           <div className="front-page-footer">
-          
+            <div className="container">
+                <ul className="bp3-list-unstyled">
+                  <li><a href="">About</a></li>
+                  <li><a href="">Press</a></li>
+                  <li><a href="">Rewards</a></li>
+                  <li><a href="">Leaderboard</a></li>
+                  <li><a href="">Privacy</a></li>
+                  <li><a href="">Terms</a></li>
+                </ul>
+            </div>
           </div>
           <div className="res-block">
             {invalid && (
