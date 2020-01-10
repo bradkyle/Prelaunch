@@ -10,6 +10,7 @@ const handlebars = require('handlebars');
 const mjml = require('mjml');
 const sgMail = require('@sendgrid/mail');
 const fs = require('fs');
+var validation=require("validator");
 
 const USER_ROUTE = "users"
 const MONGO_URL = config.MONGO_URL || 'mongodb://localhost:27017';
@@ -169,10 +170,6 @@ function sendEmail(
     }
 }
 
-function get_position(id){
-    
-}
-
 /* 
 Simple response
 */
@@ -232,31 +229,37 @@ router.get('/'+USER_ROUTE+'/find', (req, res) => {
 
         // TODO sanitize
         var email = req.query.email 
-    
-        User.find({email: email})
-        .then(user => {
-            if(!user) {
-                return res.status(404).send({
-                    message: "user not found with email " + req.query.email
-                });            
-            }
-            res.send(user);
-        }).catch(err => {
-            if(err.kind === 'ObjectId') {
-                return res.status(404).send({
-                    message: "user not found with email: " + req.query.email
-                });                
-            }
-            return res.status(500).send({
-                message: "Error retrieving user with email: " + req.query.email
-            });
-        });
+        if (validation.isEmail(email)){
+                User.find({email: email})
+                .then(user => {
+                    if(!user) {
+                        return res.status(404).send({
+                            message: "user not found with email " + email
+                        });            
+                    }
+                    res.send(user);
+                }).catch(err => {
+                    if(err.kind === 'ObjectId') {
+                        return res.status(404).send({
+                            message: "user not found with email: " + email
+                        });                
+                    }
+                    return res.status(500).send({
+                        message: "Error retrieving user with email: " + email
+                    });
+                });
+        } else {
+                return res.status(400).send({
+                    message: "Please provide a correct email."
+                });
+        }
     
     } else {
         return res.status(500).send({
             message: "Please provide a correct email or ip query parameter."
         });
     }
+    
     
 });
 

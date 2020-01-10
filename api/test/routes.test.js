@@ -84,15 +84,15 @@ describe('GET /users', () => {
   
   it('should have status 401: Unauthorized if no basic auth', async () => {
     const res = await request(app)
-      .get('/users')
-      .expect('Content-Type', /html/)
-      .expect(401);
+      .get('/users/all')
+      .expect(401)
+      .expect('Content-Type', /html/);
   })
 
   // it('should have status 200', async () => {
   //   const res = await request(app)
   //     .get('/users')
-  //     .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+  //     .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
   //     .expect('Content-Type', /json/)
   //     .expect(200); 
 
@@ -102,10 +102,10 @@ describe('GET /users', () => {
 
   it('should have status 200 and retrieve created users', async () => {
     const res = await request(app)
-      .get('/users')
-      .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
-      .expect('Content-Type', /json/)
-      .expect(200); 
+      .get('/users/all')
+      .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
+      .expect(200)
+      .expect('Content-Type', /json/); 
 
     await expect(res.body).to.be.an('array'); 
     await expect(res.body.length).to.equal(20); 
@@ -113,13 +113,12 @@ describe('GET /users', () => {
 
   it('should retrieve all users', async () => {
     const res = await request(app)
-      .get('/users')
-      .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+      .get('/users/all')
+      .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
       .expect('Content-Type', /json/)
       .expect(200);
   })
-
-})
+});
 
 
 describe('POST /users', () => {
@@ -139,8 +138,8 @@ describe('POST /users', () => {
     const res = await request(app)
       .post('/users')
       .send(genFakeUser())
-      .expect('Content-Type', /json/)
-      .expect(200);
+      .expect(200)
+      .expect('Content-Type', /json/);
   })
 
   it('should return status 400 if it has a parameter that is not supported.', async () => {
@@ -196,7 +195,7 @@ describe('POST /users', () => {
 })
 
 
-describe('GET /users/:id', () => {
+describe('GET /users?email=&id=', () => {
   beforeAll((done) => {
     var fake_users = []
     fake_users.push(genFakeUser())
@@ -210,10 +209,24 @@ describe('GET /users/:id', () => {
   
   it('should have status 404 not found if user not found', async () => {
     const res = await request(app)
-      .get('/users/fjadfasdfis')
-      .expect('Content-Type', /json/)
-      .expect(404);
-  })
+      .get('/users/find?id=fjadfasdfis')
+      .expect(404)
+      .expect('Content-Type', /json/);
+  });
+
+  it('should have status 400 invalid email: bad request', async () => {
+    const res = await request(app)
+      .get('/users/find?email=fjadfasdfis')
+      .expect(404)
+      .expect('Content-Type', /json/);
+  });
+
+  it('should have status 404 email not found', async () => {
+    const res = await request(app)
+      .get('/users/find?email=fjadfasdfis@gmail.com')
+      .expect(404)
+      .expect('Content-Type', /json/);
+  });
 
   //TODO validation
   it('should have status 200 and items in response if user found', async () => {
@@ -223,15 +236,15 @@ describe('GET /users/:id', () => {
             //return done(err, null);
         }else{
           const res = await request(app)
-          .get('/users/'+u[0]._id)
+          .get('/users/find?id='+u[0]._id)
           .set('Accept', 'application/json')
-          .expect('Content-Type', /json/)
-          .expect(200);
+          .expect(200)
+          .expect('Content-Type', /json/);
           expect(res.body._id).to.equal(u[0]._id)
           done();
         }
       });    
-  }) 
+  }); 
 })
 
 describe('DELETE /users/:id', () => {
@@ -249,16 +262,16 @@ describe('DELETE /users/:id', () => {
   it('should have status 401: Unauthorized if no auth', async () => {
     const res = await request(app)
       .delete('/users/fjadfasdfis')
-      .expect('Content-Type', /html/)
-      .expect(401);
+      .expect(401)
+      .expect('Content-Type', /html/);
   })
 
   it('should have status 400: Not Found if user does not exist', async () => {
     const res = await request(app)
       .delete('/users/fjadfasdfis')
-      .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
-      .expect('Content-Type', /json/)
-      .expect(404);
+      .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
+      .expect(404)
+      .expect('Content-Type', /json/);
   })
 
   it('should have status 200 if user deleted', async (done) => {
@@ -269,10 +282,10 @@ describe('DELETE /users/:id', () => {
       }else{
         const res = await request(app)
         .delete('/users/'+u[0]._id)
-        .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+        .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
         .set('Accept', 'application/json')
-        .expect('Content-Type', /json/)
-        .expect(200);
+        .expect(200)
+        .expect('Content-Type', /json/);
         expect(res.body.disabled).to.equal(true)
         done();
       }
@@ -297,28 +310,28 @@ describe('PUT /users/:id', () => {
     const res = await request(app)
       .put('/users/fjadfasdfis')
       .send({})
-      .expect('Content-Type', /html/)
-      .expect(401);
+      .expect(401)
+      .expect('Content-Type', /html/);
   })
 
   it('should have status 400: Not Found if user does not exist', async () => {
     const res = await request(app)
       .put('/users/fjadfasdfis')
-      .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+      .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
       .send({
         referralcount:2
       })
-      .expect('Content-Type', /json/)
-      .expect(404);
+      .expect(404)
+      .expect('Content-Type', /json/);
   })
 
   it('should have status 400 if no content in submitted body', async () => {
     const res = await request(app)
       .put('/users/test')
-      .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+      .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
       .send({})
-      .expect('Content-Type', /json/)
-      .expect(400);
+      .expect(400)
+      .expect('Content-Type', /json/);
   })
 
   it('should have status 400 if wrong (extra) content in submitted body', async (done) => {
@@ -329,7 +342,7 @@ describe('PUT /users/:id', () => {
       }else{
         const res = await request(app)
         .put('/users/'+u[0]._id)
-        .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+        .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
         .send({
           invalid:2
         })
@@ -351,7 +364,7 @@ describe('PUT /users/:id', () => {
       }else{
         const res = await request(app)
         .put('/users/'+u[0]._id)
-        .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+        .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
         .send({
           referralcount:2
         })
@@ -453,7 +466,7 @@ describe('GET /position/:id', () => {
         }else{
           const res = await request(app)
           .put('/users/'+u[0]._id)
-          .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+          .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
           .send({
             invalid:2
           })
@@ -479,7 +492,7 @@ describe('GET /position/:id', () => {
         }else{
           const res = await request(app)
           .put('/users/'+u[0]._id)
-          .auth(config.ADMIN_EMAIL.toString(), config.ADMIN_PASSWORD.toString())
+          .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
           .send({
             invalid:2
           })

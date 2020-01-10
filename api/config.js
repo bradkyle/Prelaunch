@@ -5,6 +5,7 @@ if (process.env.NODE_ENV !== 'production'){
 
 module.exports = {
     IS_OFFLINE:process.env.NODE_ENV !== 'production',
+    ADMIN_EMAIL:process.env.ADMIN_EMAIL,
     ADMIN_USERNAME:process.env.ADMIN_USERNAME,
     ADMIN_PASSWORD:process.env.ADMIN_PASSWORD,
     TOP_LIMIT:process.env.TOP_LIMIT,
