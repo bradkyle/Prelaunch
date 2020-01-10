@@ -1,554 +1,248 @@
-const request = require('supertest');
-const app = require('../app-local');
-const routes = require('../routes');
-const config = require('../config');
+var request = require('supertest');
+var app = require('../app-local');
+var config = require('../config');
 var faker = require('faker');
 faker.seed(123);
 var _ = require('lodash');
 var expect = require('chai').expect;
-const sinon = require('sinon');
+var sinon = require('sinon');
+var routes = require('../routes');
+const Email=require('../email.js');
 
 function genFakeUser(){
-  return {
-    email: faker.internet.email(),
-    ipaddress:faker.internet.ip(),
-    macaddress: faker.internet.mac(),
-    useragent: faker.internet.userAgent(),
-    sourceurl: faker.internet.url(),
-    firstname: faker.name.firstName(),
-    lastname: faker.name.lastName(),
-    emailsent: faker.random.boolean(),
-    emailopened: faker.random.boolean(),
-    variantid: faker.random.uuid(),
-    timetillsignup: faker.random.number(),
-    latitude: faker.address.latitude(),
-    longitude: faker.address.longitude(),
-    country: faker.address.country(),
-    region: faker.address.state(),
-    referralcount: faker.random.number(),
-    hasreferrals: faker.random.boolean(),
-    hasrefferer: false
-  }
+    return {
+        email: faker.internet.email(),
+        ipaddress:faker.internet.ip(),
+        macaddress: faker.internet.mac(),
+        useragent: faker.internet.userAgent(),
+        sourceurl: faker.internet.url(),
+        firstname: faker.name.firstName(),
+        lastname: faker.name.lastName(),
+        emailsent: faker.random.boolean(),
+        emailopened: faker.random.boolean(),
+        variantid: faker.random.uuid(),
+        timetillsignup: faker.random.number(),
+        latitude: faker.address.latitude(),
+        longitude: faker.address.longitude(),
+        country: faker.address.country(),
+        region: faker.address.state(),
+        referralcount: faker.random.number(),
+        hasreferrals: faker.random.boolean(),
+        hasrefferer: false
+    }
 }
 
 function genFakeUsers(num){
-  var fake_users = [];
-  for (var i=0; i<num; i++){
-    fake_users.push(genFakeUser());
-  }
-  return fake_users;
+    var fake_users = [];
+    for (var i=0; i<num; i++){
+      fake_users.push(genFakeUser());
+    }
+    return fake_users;
 }
 
 function logUsers(done){
-  routes.User.find({}, function(err, users) {
-    console.log(users);
-  });
-  done();
-}
-
-function createUsers(done, users){
-  for (var u=0; u<users.length;u++){
-    var user = new routes.User(users[u])
-    user.save()
-    .then(data => {
-        // console.log(data)
-    }).catch(err => {
-        console.error(err);
+    routes.User.find({}, function(err, users) {
+        console.log(users);
     });
-  }
-  if (done){
     done();
-  }
 }
 
-function removeUsers(done){
-  routes.User.remove({}, function(err, res){
-    if (err){
-      console.error(err);
-      if (done){done()};
+async function createUsers(done, users){
+    for (var u=0; u<users.length;u++){
+        var user = new routes.User(users[u])
+        await user.save()
+        .then(data => {
+            // console.log(data)
+        }).catch(err => {
+            console.error(err);
+        });
     }
-    // console.log(res);
-    if (done){done()};
-  });
+    var count = await routes.User.count();
+    if (done){
+        done();
+    }
+}
+
+async function removeUsers(done){
+    await routes.User.remove({}, function(err, res){
+        if (err){
+        console.error(err);
+        if (done){done()};
+        }
+        // console.log(res);
+        if (done){done()};
+    });
 }
 
 describe('GET /users', () => {
-  beforeAll((done) => {
-    var fake_users = genFakeUsers(20)
-    createUsers(done, fake_users);
-  });
+    beforeAll(async (done) => {
+        var fake_users = genFakeUsers(20);
+        await removeUsers();
+        await createUsers(done, fake_users);
+    });
 
-  afterAll((done) => {
-    removeUsers(done);
-  });  
-  
-  it('should have status 401: Unauthorized if no basic auth', async () => {
-    const res = await request(app)
-      .get('/users/all')
-      .expect(401)
-      .expect('Content-Type', /html/);
-  })
+    afterAll(async (done) => {
+        await removeUsers(done);
+    });  
 
-  // it('should have status 200', async () => {
-  //   const res = await request(app)
-  //     .get('/users')
-  //     .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
-  //     .expect('Content-Type', /json/)
-  //     .expect(200); 
+    it('should have status 401: Unauthorized if no basic auth', async (done) => {
+        const res = await request(app)
+            .get('/users/all');
+        expect(res.statusCode).to.eql(401);
+        done();
+    })
 
-  //   await expect(res.body).to.be.an('array'); 
-  //   await expect(res.body).to.be.empty; 
-  // })
+    it('should have status 200 and retrieve created users', async (done) => {
+        const res = await request(app)
+        .get('/users/all')
+        .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString());
 
-  it('should have status 200 and retrieve created users', async () => {
-    const res = await request(app)
-      .get('/users/all')
-      .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
-      .expect(200)
-      .expect('Content-Type', /json/); 
+        await expect(res.body).to.be.an('array'); 
+        await expect(res.body.length).to.equal(20);
+        await expect(res.statusCode).to.equal(200);  
+        done()
+    })
 
-    await expect(res.body).to.be.an('array'); 
-    await expect(res.body.length).to.equal(20); 
-  })
-
-  it('should retrieve all users', async () => {
-    const res = await request(app)
-      .get('/users/all')
-      .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
-      .expect('Content-Type', /json/)
-      .expect(200);
-  })
+    it('should retrieve all users', async (done) => {
+        const res = await request(app)
+        .get('/users/all')
+        .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString());
+        await expect(res.statusCode).to.equal(200); 
+        done()
+    });
 });
 
 
 describe('POST /users', () => {
-  beforeEach((done) => {
-    EMAIL_STUB = sinon.stub(routes, "sendEmail");
-    done();
-  });
-
-  afterEach((done) => {
-    // logUsers(done);
-    sinon.restore();
-    removeUsers(done);
-  });
-
-  it('should return status 200 and return user response if successful.', async () => {
-    
-    const res = await request(app)
-      .post('/users')
-      .send(genFakeUser())
-      .expect(200)
-      .expect('Content-Type', /json/);
-  })
-
-  it('should return status 400 if it has a parameter that is not supported.', async () => {
-    var user = genFakeUser()
-    var user = Object.assign(user, {invalid:"invalid"})
-    const res = await request(app)
-      .post('/users')
-      .send(user)
-      .expect(400||500);
-  })  
-
-  it('should return status 400 if it has a required parameter that missing.', async () => {
-    const res = await request(app)
-      .post('/users')
-      .send({
-        referralcount:1
-      })
-      .expect(500||400);
-  })  
-
-  it('should return status 400 if empty request', async () => {
-    const res = await request(app)
-      .post('/users')
-      .send({})
-      .expect(500||400);
-  })  
-
-  it('should return status 400 if it has a parameter that is not correct format.', async () => {
-    const res = await request(app)
-      .post('/users')
-      .send({
-        email: "example",
-        ipaddress: faker.internet.ip(),
-      })
-      .expect(400);
-  })  
-
-  it('should remove refferalcount / sanitize request.', async () => {
-    var user = genFakeUser()
-    var user = Object.assign(user, {referralcount:500})
-    const res = await request(app)
-      .post('/users')
-      .send(user)
-      .expect(200);
-    console.log(res.body);
-    expect(res.body.referralcount).to.eql(0);
-  })  
-
-  it('should increment refferal users referral count if the user has been referred.', async () => {
-    
-  })  
-
-})
-
-
-describe('GET /users?email=&id=', () => {
-  beforeAll((done) => {
-    var fake_users = []
-    fake_users.push(genFakeUser())
-    createUsers(done, fake_users);
-  });
-
-  afterAll((done) => {
-    // logUsers(done);
-    removeUsers(done);
-  });
-  
-  it('should have status 404 not found if user not found', async () => {
-    const res = await request(app)
-      .get('/users/find?id=fjadfasdfis')
-      .expect(404)
-      .expect('Content-Type', /json/);
-  });
-
-  it('should have status 400 invalid email: bad request', async () => {
-    const res = await request(app)
-      .get('/users/find?email=fjadfasdfis')
-      .expect(404)
-      .expect('Content-Type', /json/);
-  });
-
-  it('should have status 404 email not found', async () => {
-    const res = await request(app)
-      .get('/users/find?email=fjadfasdfis@gmail.com')
-      .expect(404)
-      .expect('Content-Type', /json/);
-  });
-
-  //TODO validation
-  it('should have status 200 and items in response if user found', async () => {
-    await routes.User.find({}, async function(err, u){
-        if (err){
-            console.log("errr",err);
-            //return done(err, null);
-        }else{
-          const res = await request(app)
-          .get('/users/find?id='+u[0]._id)
-          .set('Accept', 'application/json')
-          .expect(200)
-          .expect('Content-Type', /json/);
-          expect(res.body._id).to.equal(u[0]._id)
-          done();
-        }
-      });    
-  }); 
-})
-
-describe('DELETE /users/:id', () => {
-  beforeAll((done) => {
-    var fake_users = []
-    fake_users.push(genFakeUser())
-    createUsers(done, fake_users);
-  });
-
-  afterAll((done) => {
-    // logUsers(done);
-    removeUsers(done);
-  });
-
-  it('should have status 401: Unauthorized if no auth', async () => {
-    const res = await request(app)
-      .delete('/users/fjadfasdfis')
-      .expect(401)
-      .expect('Content-Type', /html/);
-  })
-
-  it('should have status 400: Not Found if user does not exist', async () => {
-    const res = await request(app)
-      .delete('/users/fjadfasdfis')
-      .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
-      .expect(404)
-      .expect('Content-Type', /json/);
-  })
-
-  it('should have status 200 if user deleted', async (done) => {
-    await routes.User.find({}, async function(err, u){
-      if (err){
-          console.log("errr",err);
-          //return done(err, null);
-      }else{
-        const res = await request(app)
-        .delete('/users/'+u[0]._id)
-        .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
-        .set('Accept', 'application/json')
-        .expect(200)
-        .expect('Content-Type', /json/);
-        expect(res.body.disabled).to.equal(true)
-        done();
-      }
+    beforeAll(async (done) => {
+        var fake_users = genFakeUsers(20);
+        await removeUsers();
+        await createUsers(done, fake_users);
     });
-  })
-})
 
-describe('PUT /users/:id', () => {
-  beforeAll((done) => {
-    removeUsers();
-    var fake_users = []
-    fake_users.push(genFakeUser())
-    createUsers(done, fake_users);
-  });
+    afterAll(async (done) => {
+        // logUsers(done);
+        await removeUsers(done);
+    });
 
-  afterAll((done) => {
-    // logUsers(done);
-    removeUsers(done);
-  });
+    afterEach((done) => {
+        sinon.restore();
+        done();
+    });
 
-  it('should have status 401: Unauthorized if no auth', async () => {
-    const res = await request(app)
-      .put('/users/fjadfasdfis')
-      .send({})
-      .expect(401)
-      .expect('Content-Type', /html/);
-  })
-
-  it('should have status 400: Not Found if user does not exist', async () => {
-    const res = await request(app)
-      .put('/users/fjadfasdfis')
-      .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
-      .send({
-        referralcount:2
-      })
-      .expect(404)
-      .expect('Content-Type', /json/);
-  })
-
-  it('should have status 400 if no content in submitted body', async () => {
-    const res = await request(app)
-      .put('/users/test')
-      .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
-      .send({})
-      .expect(400)
-      .expect('Content-Type', /json/);
-  })
-
-  it('should have status 400 if wrong (extra) content in submitted body', async (done) => {
-    await routes.User.find({}, async function(err, u){
-      if (err){
-          console.log("errr",err);
-          //return done(err, null);
-      }else{
+    it('should return status 200 and return user response if successful.', async (done) => {
+        stub = sinon.stub(Email.prototype, 'send');
         const res = await request(app)
-        .put('/users/'+u[0]._id)
-        .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
+        .post('/users')
+        .send(genFakeUser());
+        await expect(res.statusCode).to.equal(200);
+        expect(stub.called).to.eql(true);
+        done();
+    })
+
+    it('should return status 400 if it has a parameter that is not supported.', async (done) => {
+        var user = genFakeUser()
+        var user = Object.assign(user, {invalid:"invalid"})
+        const res = await request(app)
+        .post('/users')
+        .send(user);
+        await expect(res.statusCode).to.be.within(400,500);
+        done();
+    }); 
+
+    it('should return status 400 if it has a required parameter that missing.', async (done) => {
+        const res = await request(app)
+        .post('/users')
         .send({
-          invalid:2
-        })
-        .set('Accept', 'application/json')
-        // .expect('Content-Type', /json/)
-        .expect(200);
-        expect(parseInt(res.body.referralcount)).to.equal(0)
-        expect(parseInt(res.body.invalid)).to.be.NaN;
-        done();
-      }
-    });
-  })
+            referralcount:1
+        });
 
-  it('should have status 200 and have updated the submitted value', async (done) => {
-    await routes.User.find({}, async function(err, u){
-      if (err){
-          console.log("errr",err);
-          //return done(err, null);
-      }else{
+        await expect(res.statusCode).to.be.within(400,500);
+        done();
+    });
+
+    it('should return status 400 if empty request', async (done) => {
         const res = await request(app)
-        .put('/users/'+u[0]._id)
-        .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
+        .post('/users')
+        .send({});
+
+        await expect(res.statusCode).to.be.within(400,500);
+        done();
+    });  
+
+    it('should return status 400 if it has a parameter that is not correct format.', async (done) => {
+        const res = await request(app)
+        .post('/users')
         .send({
-          referralcount:2
-        })
-        .set('Accept', 'application/json')
-        // .expect('Content-Type', /json/)
-        .expect(200);
-        expect(parseInt(res.body.referralcount)).to.equal(2)
+            email: "example",
+            ipaddress: faker.internet.ip(),
+        });
+
+        await expect(res.statusCode).to.be.within(400,500);
         done();
-      }
-    });
-    
-  })
-})
+    }); 
 
-// TODO should not get disabled
-describe('GET /users/top', () => {
-  beforeAll((done) => {
-    var fake_users = genFakeUsers(200)
-    createUsers(done, fake_users);
-  });
-
-  afterAll((done) => {
-    removeUsers(done);
-  });
-
-  it('should have status 200 and return the correct number of results in descending order with screened output', async () => {
-    const res = await request(app)
-      .get('/top')
-      // .expect('Content-Type', /html/)
-      .expect(200);
-    
-  })
-
-  it('should have status 200 and return no more than max allowed amount', async () => {
-    const res = await request(app)
-      .get('/top')
-      // .expect('Content-Type', /html/)
-      .expect(200);
-    
-  })
-
-  it('should have status 200 and return number of results that were specified', async () => {
-    const res = await request(app)
-      .get('/top')
-      // .expect('Content-Type', /html/)
-      .expect(200);
-    
-  })
-
-  it('should return 404 if no users present', async () => {
-    const res = await request(app)
-      .get('/top')
-      // .expect('Content-Type', /html/)
-      .expect(200);
-    
-  })
-})
-
-
-// TODO should exclude disabled
-describe('GET /count', () => {
-  beforeAll((done) => {
-    var fake_users = genFakeUsers(20)
-    createUsers(done, fake_users);
-  });
-
-  afterAll((done) => {
-    removeUsers(done);
-  });  
-
-  it('should return 200 with the count of users', async () => {
-    const res = await request(app)
-      .get('/countn')
-      .expect('Content-Type', /json/)
-      .expect(200);
-    
-    expect(res.body.count).to.eql(20);
-  })
-  
-})
-
-// TODO should exclude disabled
-describe('GET /position/:id', () => {
-  beforeAll((done) => {
-    var fake_users = genFakeUsers(20)
-    createUsers(done, fake_users);
-  });
-
-  afterAll((done) => {
-    removeUsers(done);
-  });  
-
-  it('should return 200 with the count of users', async () => {
-    try{
-      await routes.User.find({}, async function(err, u){
-        if (err){
-            console.log("errr",err);
-            //return done(err, null);
-        }else{
-          const res = await request(app)
-          .put('/users/'+u[0]._id)
-          .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
-          .send({
-            invalid:2
-          })
-          .set('Accept', 'application/json')
-          // .expect('Content-Type', /json/)
-          .expect(200);
-          expect(parseInt(res.body.referralcount)).to.equal(0)
-          expect(parseInt(res.body.invalid)).to.be.NaN;
-          done();
-        }
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  })
-
-  it('should exclude disabled records', async () => {
-    try{
-      await routes.User.find({}, async function(err, u){
-        if (err){
-            console.log("errr",err);
-            //return done(err, null);
-        }else{
-          const res = await request(app)
-          .put('/users/'+u[0]._id)
-          .auth(config.ADMIN_USERNAME.toString(), config.ADMIN_PASSWORD.toString())
-          .send({
-            invalid:2
-          })
-          .set('Accept', 'application/json')
-          // .expect('Content-Type', /json/)
-          .expect(200);
-          expect(parseInt(res.body.referralcount)).to.equal(0)
-          expect(parseInt(res.body.invalid)).to.be.NaN;
-          done();
-        }
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  })
-})
-
-
-var EMAIL_STUB;
-
-// TODO resend
-describe('POST /resend/:id', () => {
-  beforeAll((done) => {
-    var fake_users = []
-    fake_users.push(genFakeUser())
-    createUsers(done, fake_users);
-  });
-
-  beforeEach((done) => {
-    EMAIL_STUB = sinon.stub(routes, "sendEmail");
-    done();
-  });
-
-  afterEach((done) => {
-    // logUsers(done);
-    sinon.restore();
-    removeUsers(done);
-  });
-
-  it('should resend email.', async () => {
-// 
-    await routes.User.find({}, async function(err, u){
-      if (err){
-          console.log("errr",err);
-          //return done(err, null);
-      }else{
+    it('should remove refferalcount / sanitize request.', async (done) => {
+        stub = sinon.stub(Email.prototype, 'send');
+        var user = genFakeUser();
+        var user = Object.assign(user, {referralcount:500})
         const res = await request(app)
-          .post('/resend/'+u[0]._id)
-          .expect('Content-Type', /json/)
-          .expect(200);
+            .post('/users')
+            .send(user);
 
-        assert(EMAIL_STUB.called);
+        expect(res.statusCode).to.equal(200);
+        expect(res.body.referralcount).to.eql(0);
+        expect(stub.called).to.eql(true);
+        stub.restore();
         done();
-      }
-    });
-    
-  })
+    })  
 
-})
+    it('should increment refferal users referral count if the user has been referred.', async (done) => {
+        stub = sinon.stub(Email.prototype, 'send');
+        var ruser = genFakeUser();
+        var ruser = Object.assign(ruser, {referralcount:0})
+        const res = await request(app)
+            .post('/users')
+            .send(ruser);
+
+        if (res.statusCode==200){
+            ruser = res.body
+            var user = genFakeUser();
+            var user = Object.assign(user, {referrerid:ruser._id})
+            const res1 = await request(app)
+                .post('/users')
+                .send(user);
+            
+            expect(res.statusCode).to.equal(200);
+            expect(stub.called).to.eql(true);
+
+            const res2 = await request(app)
+                .get('/users/find?id='+ruser._id);
+
+            expect(res.statusCode).to.equal(200);
+            expect(res2.body._id.toString()).to.eql(ruser._id.toString());
+            expect(parseInt(res2.body.referralcount)).to.eql(1);
+            stub.restore();
+            
+            done();
+        } else {
+            stub.restore();
+            done.fail(new Error('This is the error'));
+        }
+    });
+
+    it('Should still add user if referral is not valid.', async (done) => {
+        stub = sinon.stub(Email.prototype, 'send');
+        expect(stub.called).to.eql(false);
+        var user = genFakeUser();
+        var user = Object.assign(user, {referrerid:"dioasdjfiasdhfasd"})
+        const res1 = await request(app)
+            .post('/users')
+            .send(user);
+
+        expect(stub.called).to.eql(true);
+        expect(res1.statusCode).to.eql(200);
+        done();
+    });
+
+});

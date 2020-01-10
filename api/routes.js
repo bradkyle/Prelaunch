@@ -11,6 +11,7 @@ const mjml = require('mjml');
 const sgMail = require('@sendgrid/mail');
 const fs = require('fs');
 var validation=require("validator");
+const Email=require('./email.js');
 
 const USER_ROUTE = "users"
 const MONGO_URL = config.MONGO_URL || 'mongodb://localhost:27017';
@@ -18,9 +19,6 @@ const MAX_NUM_TOP = config.TOP_LIMIT
 const SENDGRID_API_KEY = config.SENDGRID_API_KEY
 sgMail.setApiKey(SENDGRID_API_KEY);
 
-console.log('Reading content from example.hbs template...');
-const mjmlTemplateFile = fs.readFileSync(`${__dirname}/public/even_better.mjml`, 'utf8');
-const template = handlebars.compile(mjmlTemplateFile);
 
 mongoose.Promise = global.Promise;
 
@@ -110,65 +108,9 @@ const UserSchema = new mongoose.Schema({
     messageopened     : {type: Boolean,default: false},
     referralcount     : {type:Number,default:0},
 });
-const User = mongoose.model('User', UserSchema);
 
-function sendEmail(
-    position, 
-    count, 
-    to, 
-    from, 
-    language,
-    done
-){
-    try{
-        /*
-        Sends an email via the sendgrid.com API.
-        */
-        var userInfo = {email: to}
-        
-        if (language in trans){
-            userInfo = Object.assign(userInfo, trans[language]())
-        } else if (language){
-            console.error("Language not in translations: "+language.toString())
-            userInfo = Object.assign(userInfo, trans["eng"]())
-        } else {
-            console.error("Language is null, using default")
-            userInfo = Object.assign(userInfo, trans["eng"]())
-        }
+var User = mongoose.model('User', UserSchema);
 
-        const hbsHtml = template(userInfo);
-        const templateMarkup = mjml(hbsHtml);
-
-        if (templateMarkup.errors.length === 0){
-            const msg = {
-                to: userInfo.email,
-                from: from,
-                subject: userInfo.subject,
-                html: templateMarkup.html
-            }
-            sgMail.send(msg).then(() => {
-                console.log('Mail sent!');
-            }, (error) => {
-                console.log(error.message);    
-            });
-        } else {
-            console.error('There are errors in your MJML markup:');
-            console.error(templateMarkup.errors);
-        }
-        if (done){
-            done()
-        };
-
-    } catch (e) {
-        console.error(e);
-        // TODO recursion
-        // if (retry_count && num_retrys) {
-        //     sendEmail(
-
-        //     )
-        // }
-    }
-}
 
 /* 
 Simple response
@@ -232,7 +174,7 @@ router.get('/'+USER_ROUTE+'/find', (req, res) => {
         if (validation.isEmail(email)){
                 User.find({email: email})
                 .then(user => {
-                    if(!user) {
+                    if(!user || user.length<=1) {
                         return res.status(404).send({
                             message: "user not found with email " + email
                         });            
@@ -276,14 +218,14 @@ router.post('/resend/:id', (req, res) => {
         }
         var position = 0
         var count = 0
-
-        sendEmail(
+        var e = new Email(
             position, 
             count, 
             user.email, 
             config.ADMIN_EMAIL,  
             user.language
-        )
+        );
+        e.send();
         res.send(user);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
@@ -308,7 +250,7 @@ router.post('/'+USER_ROUTE, (req, res) => {
             return res.status(400).send({
                 message: "user content can not be empty"
             });
-        } 
+        }
         
         JoiUserSchema.validate(req.body, (err, user) => {
             var user = new User(user);
@@ -342,26 +284,25 @@ router.post('/'+USER_ROUTE, (req, res) => {
             // Save user in the database
             user.save()
             .then(user => {
-                sendEmail(
+                var e = new Email(
                     position, 
                     count, 
                     user.email, 
                     config.ADMIN_EMAIL,  
                     user.language
-                )
+                );
+                e.send();
                 res.send(user);
             }).catch(err => {
                 return res.status(500).send({
                     message: err.message || "Some error occurred while creating the user."
                 });
             });
-        })
+        });
 
      } catch (e) {
         console.error(e)
     }
-
-    // TODO send email
     
 });
 
@@ -487,9 +428,5 @@ router.get('/position/:id', (req, res) => {
     });    
 });
 
-
-module.exports = {
-    router:router,
-    User:User,
-    sendEmail:sendEmail
-};
+module.exports.router = router;
+module.exports.User = User;
