@@ -270,6 +270,14 @@ class UserPage extends React.Component {
                 </div>
                 <div className = "social-card-container">
                   <Card interactive={false} elevation={Elevation.ONE} className="social-share-card blue-card">
+                    <WhatsappShareButton url={this.share_url}>
+                    <FontAwesomeIcon icon={['fab', 'whatsapp']} className="fa-3x"/>
+                    <p className="social-share-name">share</p>
+                    </WhatsappShareButton>
+                  </Card>
+                </div>
+                <div className = "social-card-container">
+                  <Card interactive={false} elevation={Elevation.ONE} className="social-share-card blue-card">
                     <VKShareButton url={this.share_url}>
                     <FontAwesomeIcon icon={['fab', 'vk']} className="fa-3x"/>
                     <p className="social-share-name">share</p>
