@@ -82,7 +82,10 @@ import PrivacyPage from './pages/Privacy'
 import AboutPage from './pages/About'
 import TermsPage from './pages/Terms'
 import LeaderboardPage from './pages/Leaderboard'
-import RewardsPage from './pages/Rewards'
+import RewardsPage from './pages/Rewards';
+import PropTypes from "prop-types";
+import Helmet from "react-helmet";
+import ReactPixel from 'react-facebook-pixel';
 
 
 import MainNavbar from './components/MainNavBar'
@@ -93,6 +96,15 @@ const { UserAgent } = require("react-useragent");
 var faker = require('faker');
 
 ReactGA.initialize('UA-000000-01');
+
+const advancedMatching = { em: 'some@email.com' }; // optional, more info: https://developers.facebook.com/docs/facebook-pixel/pixel-with-ads/conversion-tracking#advanced_match
+const options = {
+    autoConfig: true, 	// set pixel's autoConfig
+    debug: false, 		// enable logs
+};
+
+ReactPixel.init('yourPixelIdGoesHere', advancedMatching, options);
+
 
 library.add(fab, faEnvelope);
 
@@ -443,12 +455,98 @@ class FrontPage extends React.Component {
   }
 }
 
-
+const seo = {
+  title: "getd.io/",
+  description:
+    "A free, online API builder that works with CORS. A Postman alternative without the need for client app installation.",
+  url: "https://getd.io/",
+  image: "https://getd.io/image.png"
+};
 
 export default function App() {
   return (
     <Router>
       <div>
+      <Helmet
+          title={seo.title}
+          meta={[
+            { property: "og:url", content: seo.url },
+            { property: "og:type", content: "image/png" },
+            { property: "og:title", content: seo.title },
+            { property: "og:image", content: seo.image },
+            { property: "og:image:alt", content: "image/png" },
+            {
+              name: "description",
+              property: "og:description",
+              content: seo.description
+            },
+            { property: "og:site_name", content: "European Travel, Inc." },
+            { property: "og:locale", content: "en_US" },
+
+            { property: "twitter:card", content: "" },
+            { property: "twitter:site", content: "@website-username" },
+            { property: "twitter:creator", content: "@individual_account" },
+            { property: "twitter:url", content: "https://example.com/page.html" },
+            { property: "twitter:title", content: seo.title },
+            { property: "twitter:description", content: seo.description },
+            { property: "twitter:image", content: seo.image },
+            { property: "twitter:image:src", content: seo.image },
+            { property: "twitter:image:alt", content: "Alt text for image" },
+
+            { property: "fb:app_id", content: "" },
+
+            // Facebook instant article
+            { property: "fb:article_style", content: "" },
+
+            { property: "robots", content: "index,follow" },
+            { property: "googlebot", content: "index,follow" },
+
+            { property: "google-site-verification", content: "verification_token" },
+            { property: "yandex-verification", content: "verification_token" },
+            { property: "msvalidate.01", content: "verification_token" },
+            { property: "alexaVerifyID", content: "verification_token" },
+            { property: "p:domain_verify", content: "verification_token" },
+            { property: "norton-safeweb-site-verification", content: "verification_token" },
+            { property: "norton-safeweb-site-verification", content: "verification_token" },
+
+            { property: "weibo:type", content: "" },
+
+            //必填
+          // <meta name ="weibo:type" content="video" />
+          // <meta name ="weibo:video:url" content="视频的URL地址" />
+          // <meta name ="weibo:video:title" content="视频的显示名称" />
+          // <meta name ="weibo:video:description" content="视频的文字描述" />
+          // //选填
+          // <meta name ="weibo:video:image" content="视频的缩略显示图片" />
+          // <meta name="weibo:video:embed_code" content="视频播放的嵌入代码" />
+          // <meta name="weibo:video:duration" content="视频播放的时长，单位秒" />
+          // <meta name="weibo:video:stream" content="视频流的链接源" />
+          // <meta name="weibo:video:create_at" content="用户的创建时间" />
+          // <meta name="weibo:video:update_at" content="用户的更新时间" />
+
+          //必填
+          // <meta property="og:type" content="webpage" />
+          // <meta property="og:url" content="http://sports.sina.com.cn/nba/2012-12-26/06576353009.shtml" />
+          // <meta property="og:title" content="圣诞战总得分王!科比34+5写历史 暴强数据16年第2" />
+          // <meta property="og:description" content="科比-布莱恩特不出意料地拿下34分并成为了圣诞大战史上得分王，不仅如此，这位34岁的神已连续9场比赛得分30+，创造了个人生涯第二好成绩并向着2003年连续16场的壮举继续迈进！" />
+          // //选填
+          // <meta property="og:image" content="http://i2.sinaimg.cn/ty/nba/2012-12-26/U4934P6T12D6353009F1286DT20121226070232.jpg" />
+          // <meta name="weibo:webpage:create_at" content="2012-12-26 06:57:00" />
+          // <meta name="weibo:webpage:update_at" content="2012-12-26 06:57:00" />
+
+          // image属性定义多个值，即多张图片
+          // <meta property="og:image" content="示例图片1" />
+          // <meta property="og:image" content="示例图片2 " />
+          // <meta property="og:image" content="示例图片3" />
+          // <meta name="weibo:webpage: image" content="图片示例4" />
+          // <meta name="weibo:webpage: image" content="图片示例5" />
+
+            
+          ]}
+          link={[
+            { rel: "canonical", content: "https://example.com/article.html" },
+          ]}
+        />
         <Switch>
           <Route path="/about">
             <AboutPage />
