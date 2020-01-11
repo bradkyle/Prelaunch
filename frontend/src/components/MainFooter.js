@@ -33,12 +33,11 @@ export default class MainFooter extends React.Component {
                 <div className="container">
                     <ul className="bp3-list-unstyled">
                     <li><a href="/about">About</a></li>
-                    <li><a href="/press">Press</a></li>
-                    <li><a href="/about">Rewards</a></li>
+                    <li><a href="/rewards">Rewards</a></li>
                     <li><a href="/leaderboard">Leaderboard</a></li>
+                    <li><a href="/user">Your rank</a></li>
                     <li><a href="/privacy">Privacy</a></li>
                     <li><a href="/terms">Terms</a></li>
-                    <li><a href="/user">Your rank</a></li>
                     </ul>
                 </div>
         </div>

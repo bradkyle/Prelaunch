@@ -74,6 +74,11 @@ var JoiUserSchema = Joi.object({
     referralcount     : Joi.number(),
 });
 
+// const JoiUserUpdateSchema = createSchema.optionalKeys(
+//     "email", 
+//     "ipaddress"
+// );
+
 const UserSchema = new mongoose.Schema({
     email             : {type:String, required: true, unique: true},
     ipaddress         : {type:String, required: true, unique: true},
@@ -331,70 +336,52 @@ router.delete('/'+USER_ROUTE+'/:id', basicAuthFunc, (req, res) => {
 });
 
 /* 
-Updates a user
+Updates a user // TODO remove auth
 */
-router.put('/'+USER_ROUTE+'/:id', basicAuthFunc, (req, res) => {
+router.put('/'+USER_ROUTE+'/:id', (req, res) => {
     if(!req.body || !Object.keys(req.body).length) {
         return res.status(400).send({
             message: "user content can not be empty"
         });
     }
-    User.findByIdAndUpdate(req.params.id, req.body, {new: true})
-    .then(user => {
-        if(!user) {
-            return res.status(404).send({
-                message: "user not found with id " + req.params.id
+
+    JoiUserSchema.validate(req.body, (err, user) => {
+        
+        if (err){
+            return res.status(400).send({
+                message: err.message || "Some error occurred while creating the user."
             });
         }
-        res.send(user);
-    }).catch(err => {
-        if(err.kind === 'ObjectId') {
-            return res.status(404).send({
-                message: "user not found with id " + req.params.id
-            });                
-        }
-        return res.status(500).send({
-            message: "Error updating user with id " + req.params.id
-        });
-    });
-});
 
-/* 
-Retrieves a list of top users by referral count with a limit and a maximum of 100
-*/
-router.get('/top', (req, res) => {
-    try{
-        var num = MAX_NUM_TOP
-        if (req.query.num !== null){
-            num = Math.min(req.query.num, MAX_NUM_TOP);
+        if (user.referralcount || user['referralcount']){
+            delete user['referralcount'];
         }
 
-        User.find({disabled: false})
-        .sort({referralcount:-1})
-        .limit(num).then(users => {
-            if (!users.length > 0){
-                return res.status(404).send({
-                    message: "No users present"
+        if (Object.keys(user).length > 0){
+            User.findByIdAndUpdate(req.params.id, user, {new: true})
+                .then(user => {
+                    if(!user) {
+                        return res.status(404).send({
+                            message: "user not found with id " + req.params.id
+                        });
+                    }
+                    res.send(user);
+                }).catch(err => {
+                    if(err.kind === 'ObjectId') {
+                        return res.status(404).send({
+                            message: "user not found with id " + req.params.id
+                        });                
+                    }
+                    return res.status(500).send({
+                        message: "Error updating user with id " + req.params.id
+                    });
                 });
-            } // TODO sanitize output
-            res.send(users)
-        });
-    } catch (e) {
-        console.log(e);
-    }
-});
+        } else {
+            return res.status(400).send({
+                message: "No updateable parameters for user"
+            });
+        }
 
-/* 
-Retrieves a single users position in the waiting list.
-*/
-router.get('/countn', (req, res) => {
-    User.find({disabled: false}).count()
-    .then(count => {
-        res.send({count: count})
-    }).catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error occurred while retrieving users."
-        });
     });
 });
 
@@ -426,6 +413,55 @@ router.get('/position/:id', (req, res) => {
             message: "Error retrieving user with id " + req.params.id
         });
     });    
+});
+
+/* 
+Retrieves a list of top users by referral count with a limit and a maximum of 100
+*/
+router.get('/top', (req, res) => {
+    try{
+        var num = MAX_NUM_TOP
+        if (req.query.num !== null){
+            num = Math.min(req.query.num, MAX_NUM_TOP);
+        }
+
+        User.find({disabled: false})
+        .sort({referralcount:-1})
+        .limit(num).then(users => {
+            if (!users.length > 0){
+                return res.status(404).send({
+                    message: "No users present"
+                });
+            } // TODO sanitize output
+
+            users = users.map(function(u, i){
+            return {
+                _id:u._id,
+                referralcount:u.referralcount || 0,
+                position: i,
+                country: u.country || "",
+                language: u.language || ""
+            }});
+
+            res.send(users)
+        });
+    } catch (e) {
+        console.log(e);
+    }
+});
+
+/* 
+Retrieves a single users position in the waiting list.
+*/
+router.get('/count', (req, res) => {
+    User.find({disabled: false}).count()
+    .then(count => {
+        res.send({count: count})
+    }).catch(err => {
+        res.status(500).send({
+            message: err.message || "Some error occurred while retrieving users."
+        });
+    });
 });
 
 module.exports.router = router;

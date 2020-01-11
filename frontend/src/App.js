@@ -82,7 +82,6 @@ import PrivacyPage from './pages/Privacy'
 import AboutPage from './pages/About'
 import TermsPage from './pages/Terms'
 import LeaderboardPage from './pages/Leaderboard'
-import PressPage from './pages/Press'
 import RewardsPage from './pages/Rewards'
 
 
@@ -460,9 +459,6 @@ export default function App() {
           </Route>
           <Route path="/terms">
             <TermsPage />
-          </Route>
-          <Route path="/press">
-            <PressPage />
           </Route>
           <Route path="/">
             <FrontPage />
