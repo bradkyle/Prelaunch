@@ -79,43 +79,48 @@ var JoiUserSchema = Joi.object({
 //     "ipaddress"
 // );
 
-const UserSchema = new mongoose.Schema({
-    email             : {type:String, required: true, unique: true},
-    ipaddress         : {type:String, required: true, unique: true},
-    referrerid        : String,
-    macaddress        : String,
-    firstname         : String,
-    lastname          : String,
-    phonenumber       : String,
-    phonezone         : String,
-    variantid         : String,
-    sourceurl         : String,
-    useragent         : String,
-    timetillsignup    : Number,
-    latitude          : String,
-    longitude         : String,
-    locale            : String,
-    country           : String,
-    region            : String,
-    cookies           : String,
-    language          : String,
-    hasrefferer       : {type: Boolean,default: false},
-    emailsent         : {type: Boolean,default: false},
-    emailverified     : {type: Boolean,default: false},
-    emailopened       : {type: Boolean,default: false},
-    disabled          : {type: Boolean,default: false},
-    hasreferrals      : {type: Boolean,default: false},
-    hasemail          : {type: Boolean,default: false},
-    hasphone          : {type: Boolean,default: false},
-    whatsappsent      : {type: Boolean,default: false},
-    whatsappopened    : {type: Boolean,default: false},
-    messagesent       : {type: Boolean,default: false},
-    messageopened     : {type: Boolean,default: false},
-    referralcount     : {type:Number,default:0},
-});
+const UserSchema = new mongoose.Schema(
+    
+    {
+        email             : {type:String, required: true, unique: true},
+        ipaddress         : {type:String, required: true, unique: true},
+        referrerid        : String,
+        macaddress        : String,
+        firstname         : String,
+        lastname          : String,
+        phonenumber       : String,
+        phonezone         : String,
+        variantid         : String,
+        sourceurl         : String,
+        useragent         : String,
+        timetillsignup    : Number,
+        latitude          : String,
+        longitude         : String,
+        locale            : String,
+        country           : String,
+        region            : String,
+        cookies           : String,
+        language          : String,
+        hasrefferer       : {type: Boolean,default: false},
+        emailsent         : {type: Boolean,default: false},
+        emailverified     : {type: Boolean,default: false},
+        emailopened       : {type: Boolean,default: false},
+        disabled          : {type: Boolean,default: false},
+        hasreferrals      : {type: Boolean,default: false},
+        hasemail          : {type: Boolean,default: false},
+        hasphone          : {type: Boolean,default: false},
+        whatsappsent      : {type: Boolean,default: false},
+        whatsappopened    : {type: Boolean,default: false},
+        messagesent       : {type: Boolean,default: false},
+        messageopened     : {type: Boolean,default: false},
+        referralcount     : {type:Number,default:0},
+    }, { timestamps: true }
+);
 
 var User = mongoose.model('User', UserSchema);
 
+//TODO sanitize input/output (_id, email, ip, referralcount, emailopened, emailsent, )
+// TODO get position
 
 /* 
 Simple response
@@ -150,24 +155,32 @@ router.get('/'+USER_ROUTE+'/find', (req, res) => {
     if (req.query.id) {
 
         // TODO sanitize
-        var id = req.query.id
+        var id = req.query.id;
 
-        User.findById(req.query.id)
+        User.findById(id)
         .then(user => {
             if(!user) {
                 return res.status(404).send({
-                    message: "user not found with id " + req.query.id
+                    message: "user not found with id " + id
                 });            
             }
-            res.send(user);
+            User
+                .find({referralcount: {$gt: user.referralcount}, disabled:false})
+                .count()
+                .then(position => {
+                    res.send({...user._doc, ...{position:position}});
+                }).catch(err => {
+                    console.error(err);
+                    res.send(user);
+                });
         }).catch(err => {
             if(err.kind === 'ObjectId') {
                 return res.status(404).send({
-                    message: "user not found with id " + req.query.id
+                    message: "user not found with id " + id
                 });                
             }
             return res.status(500).send({
-                message: "Error retrieving user with id " + req.query.id
+                message: "Error retrieving user with id " + id
             });
         });
 
@@ -175,16 +188,25 @@ router.get('/'+USER_ROUTE+'/find', (req, res) => {
     } else if (req.query.email) {
 
         // TODO sanitize
-        var email = req.query.email 
+        var email = req.query.email;
         if (validation.isEmail(email)){
                 User.find({email: email})
                 .then(user => {
-                    if(!user || user.length<=1) {
+                    if(!user || user.length<1) {
                         return res.status(404).send({
                             message: "user not found with email " + email
                         });            
                     }
-                    res.send(user);
+                    user = user[0]
+                    User
+                    .find({referralcount: {$gt: user.referralcount}, disabled:false})
+                    .count()
+                    .then(position => {
+                        res.send({...user._doc, ...{position:position}});
+                    }).catch(err => {
+                        console.error(err);
+                        res.send(user);
+                    });
                 }).catch(err => {
                     if(err.kind === 'ObjectId') {
                         return res.status(404).send({
@@ -244,7 +266,7 @@ router.post('/resend/:id', (req, res) => {
     });
 });
 
-
+// TODO test referral user not updated before user, try resend emails etc, get position and count
 /* 
 Creates a new user
 */ // TODO increment referrer user id if it exists
@@ -266,39 +288,52 @@ router.post('/'+USER_ROUTE, (req, res) => {
                 });
             }
 
-            if (user.hasrefferer || user.referrerid){
-                // TODO your in the top 500 , 100, 50, 60 etc.
-
-                User.findByIdAndUpdate(user.referrerid, {$inc: { referralcount: 1 } }, {new: true})
-                .then(user => {
-                    if(!user) {
-                        console.error("user not found with id " + user.referrerid);
-                    }
-                    // TODO conditional notification
-                }).catch(err => {
-                    if(err.kind === 'ObjectId') {
-                        console.error("user not found with id " + user.referrerid);                
-                    }
-                    console.error("Error updating user with id " + user.referrerid);
-                });
-            }
-
-            var position = 0
             var count = 5
 
             // Save user in the database
             user.save()
             .then(user => {
+
+                user.position = User
+                .find({referralcount: {$gt: user.referralcount}, disabled:false})
+                .count();
+                
+                if (user.hasrefferer || user.referrerid){
+                    // TODO your in the top 500 , 100, 50, 60 etc.
+    
+                    User.findByIdAndUpdate(user.referrerid, {$inc: { referralcount: 1 } }, {new: true})
+                    .then(user => {
+                        if(!user) {
+                            console.error("user not found with id " + user.referrerid);
+                        }
+                        // TODO conditional notification
+                    }).catch(err => {
+                        if(err.kind === 'ObjectId') {
+                            console.error("user not found with id " + user.referrerid);                
+                        }
+                        console.error("Error updating user with id " + user.referrerid);
+                    });
+                }
+
                 var e = new Email(
-                    position, 
+                    user.position, 
                     count, 
                     user.email, 
                     config.ADMIN_EMAIL,  
                     user.language
                 );
                 e.send();
+
                 res.send(user);
+
             }).catch(err => {
+                console.log(err)
+                if (err.code){
+                    return res.status(500).send({
+                        message: err.code + err.message
+                    });
+                }
+
                 return res.status(500).send({
                     message: err.message || "Some error occurred while creating the user."
                 });

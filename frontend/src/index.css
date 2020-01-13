@@ -29,7 +29,7 @@ h1 {
 }
 
 .bp3-navbar {
-    background-image: url('https://img.bafang.com/cdn/assets/imgs/MjAxOTU/4B1BF28498F423173F2920D131E28EDD.png');
+    background-image: url('./header.png');
     background-color: #0b1229;
     background-size:80%;
     background-position: center center;
@@ -112,7 +112,7 @@ h1 {
 .front-page {
     background: #030717;
     height: 100vh;
-    background-image: url('https://img.bafang.com/cdn/assets/imgs/MjAxOTU/4B1BF28498F423173F2920D131E28EDD.png');
+    background-image: url('./header.png');
     background-size: 60%;
     background-position: center top;
     background-repeat: no-repeat;
@@ -189,7 +189,7 @@ h1 {
 }
 
 .main-user-banner{
-    background-image: url('https://img.bafang.com/cdn/assets/imgs/MjAxOTU/4B1BF28498F423173F2920D131E28EDD.png');
+    background-image: url('./header.png');
     background-size: 110%;
     background-repeat: no-repeat;
     background-position: center center;

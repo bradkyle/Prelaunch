@@ -29,12 +29,12 @@ Email.prototype.send = function(){
         /*
         Sends an email via the sendgrid.com API.
         */
-        var userInfo = {email: to}
+        var userInfo = {email: this.to}
         console.log("========================");
-        if (language in trans){
-            userInfo = Object.assign(userInfo, trans[language]())
-        } else if (language){
-            console.error("Language not in translations: "+language.toString())
+        if (this.language in trans){
+            userInfo = Object.assign(userInfo, trans[this.language]())
+        } else if (this.language){
+            console.error("Language not in translations: "+this.language.toString())
             userInfo = Object.assign(userInfo, trans["eng"]())
         } else {
             console.error("Language is null, using default")
@@ -47,7 +47,7 @@ Email.prototype.send = function(){
         if (templateMarkup.errors.length === 0){
             const msg = {
                 to: userInfo.email,
-                from: from,
+                from: this.from,
                 subject: userInfo.subject,
                 html: templateMarkup.html
             }

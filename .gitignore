@@ -2,6 +2,10 @@
 # Created by https://www.gitignore.io/api/git,node,code,react,grunt,bower,bazel,angular,gitbook,reactnative,jupyternotebooks
 # Edit at https://www.gitignore.io/?templates=git,node,code,react,grunt,bower,bazel,angular,gitbook,reactnative,jupyternotebooks
 
+./private/*
+private/*
+private/*/*
+
 **/**/*.zip
 
 ### Angular ###
