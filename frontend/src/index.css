@@ -255,6 +255,11 @@ h1 {
     text-align: center;
 }
 
+.blue-card-perm svg{
+    padding-left:5px;
+    padding-right:5px;
+}
+
 .card-container {
     padding: 2px;
     padding-left:10px !important;

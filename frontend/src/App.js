@@ -10,7 +10,25 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { fab } from '@fortawesome/free-brands-svg-icons';
 import { 
   faEnvelope, 
-  faKey 
+  faKey,
+  faGlobeAmericas,
+  faGlobeAsia,
+  faGlobeEurope,
+  faFunnelDollar,
+  faClock,
+  faCalendar,
+  faDollarSign,
+  faDatabase,
+  faTable,
+  faServer,
+  faCommentDollar,
+  faCommentsDollar,
+  faBalanceScale,
+  faDiceD20,
+  faUsers,
+  faUserAstronaut,
+  faUserNinja,
+  faUserTie
 } from '@fortawesome/free-solid-svg-icons';
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -83,7 +101,27 @@ const options = {
 ReactPixel.init('yourPixelIdGoesHere', advancedMatching, options);
 
 
-library.add(fab, faEnvelope);
+library.add(
+  fab, 
+  faEnvelope,
+  faGlobeAmericas,
+  faGlobeAsia,
+  faGlobeEurope,
+  faFunnelDollar,
+  faClock,
+  faCalendar,
+  faDollarSign,
+  faDatabase,
+  faTable,
+  faServer,
+  faCommentsDollar,
+  faBalanceScale,
+  faDiceD20,
+  faUsers,
+  faUserAstronaut,
+  faUserNinja,
+  faUserTie
+);
 
 
 
