@@ -35,7 +35,7 @@ export default class MainNavbar extends React.Component {
               <NavbarGroup>
               <a href="/"><h4 className="logo-white">Axiom</h4></a>
               </NavbarGroup>
-              <NavbarGroup className="bp3-dark" align={Alignment.RIGHT}>
+              {/* <NavbarGroup className="bp3-dark" align={Alignment.RIGHT}>
                 <Menu>
                   <MenuItem text="English">
                       <MenuItem text="Spanish" />
@@ -49,7 +49,7 @@ export default class MainNavbar extends React.Component {
                       <MenuItem text="French" />
                   </MenuItem>
               </Menu>
-            </NavbarGroup>
+            </NavbarGroup> */}
             </div>          
         </Navbar>
       );

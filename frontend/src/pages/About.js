@@ -36,13 +36,29 @@ export default class AboutPage extends React.Component {
     render() {
         const { res, invalid, displayErrors } = this.state;
       return (
-          <div>
-          <MainNavbar className="main-navbar"></MainNavbar>
-          <div className="container content">
-          <h1>About Axiom</h1>
-            
-          <Card className="blue-card col-md-3">PDF press kit</Card>
-          </div>
+          <div className="about-page">
+            <a href="/"><h1 className="logo-white center about-logo">Axiom</h1></a>
+            <div className="container content">
+              <div className = "row header">
+
+              </div>
+              <div className="row">
+              <div className = "col-md-3 card-container">
+                  <Card className="blue-card-perm ">PDF press kit</Card>
+              </div>
+              <div className = "col-md-3 card-container">
+                  <Card className="blue-card-perm ">PDF press kit</Card>
+              </div>
+              <div className = "col-md-3 card-container">
+                  <Card className="blue-card-perm ">PDF press kit</Card>
+              </div>
+              <div className = "col-md-3 card-container">
+                  <Card className="blue-card-perm ">PDF press kit</Card>
+              </div>
+              </div>
+            </div>
+            <div className="row">
+            </div>
           </div>
       );
     }

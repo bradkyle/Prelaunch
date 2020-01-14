@@ -5,6 +5,7 @@ import {
   Button, 
   InputGroup , 
   Alert,
+  Card, 
   Intent
 } from "@blueprintjs/core";
 import axios from 'axios';
@@ -18,6 +19,7 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 import ReCAPTCHA from "react-google-recaptcha";
 import { useParams} from "react-router";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 var faker = require('faker');
 
@@ -137,7 +139,7 @@ class HomePage extends React.Component {
   	const { res, invalid, displayErrors } = this.state;
     
     const submitButton = (
-      <Button minimal={true} onClick={this.handleSubmit}>
+      <Button minimal={true} onClick={this.handleSubmit} className="join-button">
           Get Early Access
       </Button>
     );
@@ -160,7 +162,7 @@ class HomePage extends React.Component {
       <div className="front-page">
         <div className="container content">
           <h1 className="center logo-white logo">Axiom</h1>
-          <h2 className="center subtitle">Invest your money from anywhere with up to 20x leverage</h2>
+          <h2 className="center subtitle">Investing and trading available 24/7 with less than zero commission and immediate execution.</h2>
           <p className="center">Get early access, life-time annuity and stock, yup stock from referring your friends.</p>
           <div className="row">
           <div className="col-md-6">
@@ -204,7 +206,118 @@ class HomePage extends React.Component {
             <p className="front-page-email-input-text center">We will never post to your pages</p>
           </div>
           </div>
-          <MainFooter/>
+          <div className = "row header">
+
+              </div>
+              <div className="row card-row">
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <p>No overnight fees</p>
+                    </Card>
+                </div>
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <div class="feature-card-content">
+                    <p>No periodic funding fees</p>
+                    </div>
+                    </Card>
+                </div>
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <div class="feature-card-content">
+                    <p>Equal maker and taker fees</p>
+                    </div>
+                    </Card>
+                </div>
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <div class="feature-card-content">
+                    <p>Direct API access</p>
+                    </div>
+                    </Card>
+                </div>
+              </div>
+              <div className="row card-row">
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <p>Up to 50x leverage</p>
+                    </Card>
+                </div>
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <div class="feature-card-content">
+                    <p>Institutional quality news</p>
+                    </div>
+                    </Card>
+                </div>
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <div class="feature-card-content">
+                    <p>24/7/265 Stock trading</p>
+                    </div>
+                    </Card>
+                </div>
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <div class="feature-card-content">
+                    <p>Free historical/real time data</p>
+                    </div>
+                    </Card>
+                </div>
+              </div>
+              <div className="row card-row">
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <p>No CFD derivatives</p>
+                    </Card>
+                </div>
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <div class="feature-card-content">
+                    <p>Available internationally</p>
+                    </div>
+                    </Card>
+                </div>
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <div class="feature-card-content">
+                    <p>Instant untraceable crypto funding</p>
+                    </div>
+                    </Card>
+                </div>
+                <div className = "col-md-3 card-container">
+                    <Card className="blue-card-perm ">
+                    <FontAwesomeIcon icon={['fab', 'weibo']} className="fa-3x"/>
+                    <br></br>
+                    <div class="feature-card-content">
+                    <p>No minimum deposit amount</p>
+                    </div>
+                    </Card>
+                </div>
+              </div>
+          {/* <MainFooter/> */}
           <div className="res-block">
             {invalid && (
               <Alert
@@ -221,6 +334,9 @@ class HomePage extends React.Component {
               </Alert>
             )}
           </div>
+        </div>
+        <div className="full-row-highlighted">
+        
         </div>
       </div>
     );
