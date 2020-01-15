@@ -418,8 +418,29 @@ body::-webkit-scrollbar-thumb {
 }
 
 .footer{
-    height: 400px;
+    height: 600px;
     width:100%;
     background: rgb(3,7,23);
-    background: linear-gradient(180deg, rgba(3,7,23,1) 0%, rgba(0,0,0,1) 100%);
+    background: linear-gradient(180deg, rgba(3,7,23,1) 0%, rgba(0,0,0,1) 43%, rgba(0,0,0,1) 100%);
 }
+
+.footer > .container{
+    height: 100%;
+    background:none !important;
+    position: relative;
+}
+
+.footer-image{
+    height: 100%;
+    width:100%;
+    background-image:url('https://brex.com/static/planet-958a41d34aa478860ee108978fcd26b4.png');
+    background-size:100% 250px;
+    background-repeat: no-repeat;
+    opacity: 0.9;
+    background-position: center bottom;
+    position: absolute;
+    z-index: 1;
+    -webkit-mask-image: -webkit-gradient(linear, left bottom, left top, 
+    from(rgba(0,0,0,1)), to(rgba(0,0,0,0)));
+}
+

@@ -391,7 +391,7 @@ class HomePage extends React.Component {
                     <div className="prelaunch-card-header">
                       <h4>Top 10 referrers</h4>
                     </div>
-                    <p>You'll get shares in Axiom (Yup shares). Each of the top 10 referrers will recieve 15000 shares of Axiom.</p>
+                    <p>You'll get shares in Axiom (Yup shares). Each of the top 10 referrers will recieve 15000 shares in Axiom.</p>
                     
                     
                     </Card>
@@ -419,7 +419,10 @@ class HomePage extends React.Component {
           </div>
         </div>
         <div className="footer">
+          <div className="container">
+            <div className="footer-gradient"></div>
             <div className="footer-image"></div>
+          </div>
         </div>
       </div>
     );
