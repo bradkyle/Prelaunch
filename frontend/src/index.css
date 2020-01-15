@@ -120,7 +120,7 @@ h1 {
 
 .front-page > .container {
     background: none !important;
-    padding-top:200px;
+    padding-top:100px;
 }
 
 .front-page-email-input-text{
@@ -444,3 +444,11 @@ body::-webkit-scrollbar-thumb {
     from(rgba(0,0,0,1)), to(rgba(0,0,0,0)));
 }
 
+.subtitle-subtext{
+    color: white !important;
+}
+
+.access-form{
+    margin: 0 auto;
+    display: inline-block;
+}

@@ -165,7 +165,7 @@ class HomePage extends React.Component {
           <h2 className="center subtitle">Investing and trading available 24/7 internationally with crypto funding, less than zero commission and immediate execution.</h2>
           <p className="center">Get early access and commission from referring your friends. Launching June 2020.</p>
           <div className="row">
-          <div className="col-md-6">
+          <div className="col-md-6 access-form">
           <form
             onSubmit={this.handleSubmit}
             noValidate
@@ -188,29 +188,12 @@ class HomePage extends React.Component {
             onChange={this.onChange}
           /> */}
           </div>
-          <div className="col-md-6">
-          {/* <FacebookLogin
-            appId="445074949709489"
-            autoLoad={true}
-            fields="name,email,picture"
-            // onClick={componentClicked}
-            callback={this.handleFacebookLogin} 
-            /> */}
-            <GoogleLogin
-              clientId="" //CLIENTID NOT CREATED YET
-              buttonText="JOIN WITH GOOGLE"
-              onSuccess={this.handleGoogleLogin}
-              onFailure={this.handleGoogleLogin}
-              className="fill"
-            />
-            <p className="front-page-email-input-text center">We will never post to your pages</p>
-          </div>
           </div>
           <div className = "row header">
               </div>
 
               <h3 className="center subtitle">Features</h3>
-              <p className="center">The most feature rich exchange/broker made for traders by traders</p>
+              <p className="center subtitle-subtext">The most feature rich exchange/broker made for traders by traders</p>
               
               <div className="row card-row">
                 <div className = "col-md-3 card-container">
@@ -264,7 +247,7 @@ class HomePage extends React.Component {
                     <FontAwesomeIcon icon='dollar-sign' className="fa-3x"/>
                     <FontAwesomeIcon icon='dollar-sign' className="fa-3x"/>
                     <br></br>
-                    <p>Up to 30x leverage on all instruments</p>
+                    <p>Up to 50x leverage on all instruments</p>
                     </Card>
                 </div>
                 <div className = "col-md-3 card-container">
@@ -347,58 +330,7 @@ class HomePage extends React.Component {
                 </div>
               </div>
 
-            <div className = "row header">
-              </div>
-
-              <h3 className="center subtitle">Prelaunch Campaign</h3>
-                <p className="center">Refer your friends and get priority early access, increased rebates and commission as well as stock in axiom if you are in our top 10 referrers</p>
-              
-                <div className="row card-row">
-                <div className = "col-md-3 card-container">
-                    <Card className="blue-card-perm prelaunch-card">
-                    <div className="feature-card-bg"></div>
-                    <div className="prelaunch-card-header">
-                      <h4>Refer 10 people</h4>
-                    </div>
-                    <p>You'll get 10% commission on every trade you referred. deposited into your account.</p>
-                    
-                    </Card>
-                </div>
-                <div className = "col-md-3 card-container">
-                    <Card className="blue-card-perm prelaunch-card">
-                    <div className="feature-card-bg"></div>
-                    <div className="prelaunch-card-header">
-                      <h4>Refer 50 people</h4>
-                    </div>
-                    <p>You'll get 30% commission on every trade you referred. deposited into your account.</p>
-                    
-                    
-                    </Card>
-                </div>
-                <div className = "col-md-3 card-container">
-                    <Card className="blue-card-perm prelaunch-card">
-                    <div className="feature-card-bg"></div>
-                    <div className="prelaunch-card-header">
-                      <h4>Refer 100 people</h4>
-                    </div>
-                    <p>You'll get 50% commission on every trade you referred. deposited into your account.</p>
-                    
-                    </Card>
-                </div>
-                <div className = "col-md-3 card-container">
-                    <Card className="blue-card-perm prelaunch-card">
-                    <div className="feature-card-bg"></div>
-                    <div className="prelaunch-card-header">
-                      <h4>Top 10 referrers</h4>
-                    </div>
-                    <p>You'll get shares in Axiom (Yup shares). Each of the top 10 referrers will recieve 15000 shares in Axiom.</p>
-                    
-                    
-                    </Card>
-                </div>
-              </div>
-              <div className = "row header">
-              </div>
+            
 
           {/* <MainFooter/> */}
           <div className="res-block">
