@@ -162,8 +162,8 @@ class HomePage extends React.Component {
       <div className="front-page">
         <div className="container content">
           <h1 className="center logo-white logo">Axiom</h1>
-          <h2 className="center subtitle">Investing and trading available 24/7 with less than zero commission and immediate execution.</h2>
-          <p className="center">Get early access and commission from referring your friends.</p>
+          <h2 className="center subtitle">Investing and trading available 24/7 with crypto funding, less than zero commission and immediate execution.</h2>
+          <p className="center">Get early access and commission from referring your friends. Launching June 2020.</p>
           <div className="row">
           <div className="col-md-6">
           <form
@@ -207,8 +207,9 @@ class HomePage extends React.Component {
           </div>
           </div>
           <div className = "row header">
-
               </div>
+
+              <h3 className="center subtitle">Features</h3>
               <div className="row card-row">
                 <div className = "col-md-3 card-container">
                     <Card className="blue-card-perm ">
@@ -256,7 +257,7 @@ class HomePage extends React.Component {
                     <FontAwesomeIcon icon='dollar-sign' className="fa-3x"/>
                     <FontAwesomeIcon icon='dollar-sign' className="fa-3x"/>
                     <br></br>
-                    <p>Up to 30x leverage on all instruments</p>
+                    <p>Up to 50x leverage on all instruments</p>
                     </Card>
                 </div>
                 <div className = "col-md-3 card-container">
@@ -315,7 +316,7 @@ class HomePage extends React.Component {
                     {/* <FontAwesomeIcon icon={['fab', 'ethereum']} className="fa-3x"/> */}
                     <br></br>
                     <div class="feature-card-content">
-                    <p>Instant crypto funding deposits with no minimum</p>
+                    <p>Instant crypto funding deposits with no minimum (Yup)</p>
                     </div>
                     </Card>
                 </div>
@@ -350,7 +351,32 @@ class HomePage extends React.Component {
           </div>
         </div>
         <div className="full-row-highlighted">
-        
+          <div className="highlight-divider"></div>
+          <div className="container">
+            <h3 className="center subtitle">Prelaunch Campaign</h3>
+            <p className="center">Get early access and commission from referring your friends. Launching June 2020.</p>
+              
+            <Card className="blue-card-perm prelaunch-tier-row">
+              <h3>Refer more than 10 people</h3>
+                    
+            </Card>
+            <Card className="blue-card-perm prelaunch-tier-row">
+              <h3>Refer more than 50 people</h3>
+                    
+            </Card>
+            <Card className="blue-card-perm prelaunch-tier-row">
+              <h3>Refer more than 100 people</h3>
+                    
+            </Card>
+            <Card className="blue-card-perm prelaunch-tier-row">
+              <h3>Be in our top 10</h3>
+                    
+            </Card>
+            <Card className="blue-card-perm prelaunch-tier-row">
+              <h3>Be our top referrer</h3>
+              <Button className="gradient-button">Join</Button>
+            </Card>
+          </div>
         </div>
       </div>
     );
