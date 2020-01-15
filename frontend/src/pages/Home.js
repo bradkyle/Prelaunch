@@ -139,7 +139,7 @@ class HomePage extends React.Component {
   	const { res, invalid, displayErrors } = this.state;
     
     const submitButton = (
-      <Button minimal={true} onClick={this.handleSubmit} className="join-button">
+      <Button minimal={true} onClick={this.handleSubmit} intent="success" className="join-button">
           Get Early Access
       </Button>
     );
@@ -162,7 +162,7 @@ class HomePage extends React.Component {
       <div className="front-page">
         <div className="container content">
           <h1 className="center logo-white logo">Axiom</h1>
-          <h2 className="center subtitle">Investing and trading available 24/7 internationally with crypto funding, less than zero commission and immediate execution.</h2>
+          <h2 className="center logo-white">The first crypto to stock exchange.</h2>
           <p className="center">Get early access and commission from referring your friends. Launching June 2020.</p>
           <div className="row">
           <div className="col-md-6 access-form">
@@ -317,7 +317,7 @@ class HomePage extends React.Component {
                     </Card>
                 </div>
                 <div className = "col-md-3 card-container">
-                    <Card className="blue-card-perm ">
+                    <Card className="blue-card-perm">
                     <div className="feature-card-bg"></div>
                     <FontAwesomeIcon icon='user-tie' className="fa-3x"/>
                     <FontAwesomeIcon icon='user-ninja' className="fa-3x"/>
@@ -329,8 +329,7 @@ class HomePage extends React.Component {
                     </Card>
                 </div>
               </div>
-
-            
+              
 
           {/* <MainFooter/> */}
           <div className="res-block">
