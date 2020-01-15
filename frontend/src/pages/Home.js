@@ -162,7 +162,7 @@ class HomePage extends React.Component {
       <div className="front-page">
         <div className="container content">
           <h1 className="center logo-white logo">Axiom</h1>
-          <h2 className="center subtitle">Investing and trading available 24/7 with crypto funding, less than zero commission and immediate execution.</h2>
+          <h2 className="center subtitle">Investing and trading available 24/7 internationally with crypto funding, less than zero commission and immediate execution.</h2>
           <p className="center">Get early access and commission from referring your friends. Launching June 2020.</p>
           <div className="row">
           <div className="col-md-6">
@@ -357,41 +357,43 @@ class HomePage extends React.Component {
                 <div className = "col-md-3 card-container">
                     <Card className="blue-card-perm prelaunch-card">
                     <div className="feature-card-bg"></div>
-                    <div className=""></div>
+                    <div className="prelaunch-card-header">
+                      <h4>Refer 10 people</h4>
+                    </div>
+                    <p>You'll get 10% commission on every trade you referred. deposited into your account.</p>
                     
-                    <br></br>
-                    <h4>Peer to Peer transactions, no CFD contracts</h4>
                     </Card>
                 </div>
                 <div className = "col-md-3 card-container">
-                    <Card className="blue-card-perm ">
+                    <Card className="blue-card-perm prelaunch-card">
                     <div className="feature-card-bg"></div>
-                    
-                    <br></br>
-                    <div class="feature-card-content">
-                    <p>International availability and multi language support</p>
+                    <div className="prelaunch-card-header">
+                      <h4>Refer 50 people</h4>
                     </div>
+                    <p>You'll get 30% commission on every trade you referred. deposited into your account.</p>
+                    
+                    
                     </Card>
                 </div>
                 <div className = "col-md-3 card-container">
-                    <Card className="blue-card-perm ">
+                    <Card className="blue-card-perm prelaunch-card">
                     <div className="feature-card-bg"></div>
-                    
-                    {/* <FontAwesomeIcon icon={['fab', 'ethereum']} className="fa-3x"/> */}
-                    <br></br>
-                    <div class="feature-card-content">
-                    <p>Instant crypto funding deposits with no minimum (Yup)</p>
+                    <div className="prelaunch-card-header">
+                      <h4>Refer 100 people</h4>
                     </div>
+                    <p>You'll get 50% commission on every trade you referred. deposited into your account.</p>
+                    
                     </Card>
                 </div>
                 <div className = "col-md-3 card-container">
-                    <Card className="blue-card-perm ">
+                    <Card className="blue-card-perm prelaunch-card">
                     <div className="feature-card-bg"></div>
-                    
-                    <br></br>
-                    <div class="feature-card-content">
-                    <p>Advanced trading, execution and customization</p>
+                    <div className="prelaunch-card-header">
+                      <h4>Top 10 referrers</h4>
                     </div>
+                    <p>You'll get shares in Axiom (Yup shares). Each of the top 10 referrers will recieve 15000 shares of Axiom.</p>
+                    
+                    
                     </Card>
                 </div>
               </div>
@@ -415,6 +417,9 @@ class HomePage extends React.Component {
               </Alert>
             )}
           </div>
+        </div>
+        <div className="footer">
+            <div className="footer-image"></div>
         </div>
       </div>
     );

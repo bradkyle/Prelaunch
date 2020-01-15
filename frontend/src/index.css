@@ -377,10 +377,12 @@ body::-webkit-scrollbar-thumb {
 
 .circle-icon-container {
     height:100px;
-    width:100px;
+    width:100%;
     border: 1px solid #4e88f0;
     background: black;
-    border-radius:50px;
+    border-radius:5px;
+    margin-bottom:15px;
+    opacity: 0.6;
 }
 
 .prelaunch-tier-card {
@@ -413,4 +415,11 @@ body::-webkit-scrollbar-thumb {
 
 .prelaunch-card h4{
     color: white;
+}
+
+.footer{
+    height: 400px;
+    width:100%;
+    background: rgb(3,7,23);
+    background: linear-gradient(180deg, rgba(3,7,23,1) 0%, rgba(0,0,0,1) 100%);
 }
