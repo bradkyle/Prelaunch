@@ -110,14 +110,9 @@ h1 {
 }
 
 .front-page {
-    background: #030717;
+    background: black;
     min-height: 100vh;
     height: 100%;
-    background-image: url('./header.png');
-    background-size: 80%;
-    padding-bottom:150px;
-    background-position: center top;
-    background-repeat: no-repeat;
 }
 
 .front-page p {
@@ -125,8 +120,10 @@ h1 {
 }
 
 .front-page > .container {
-    background: none !important;
+    background: black !important;
     padding-top:100px;
+    min-height: 100vh;
+    padding-bottom:100px;
 }
 
 .front-page-email-input-text{
@@ -408,7 +405,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .feature-card-bg{
-    opacity: 0.15;
+    opacity: 0.1;
     position: absolute;
     height: 100%;
     width: 100%;

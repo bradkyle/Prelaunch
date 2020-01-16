@@ -59,7 +59,6 @@ class ResendPage extends React.Component {
           <h2 className="center subtitle">We have sent an email to your address</h2>
           <p className="center">You have already signed up, click on the link we sent you in order to see your account</p>
           <p className="center">Haven't reveived it?  <a href="/user">Click to resend</a></p>
-          <MainFooter/>
           <div className="res-block">
             {invalid && (
               <Alert

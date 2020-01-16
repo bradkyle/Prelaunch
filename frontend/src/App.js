@@ -128,10 +128,12 @@ library.add(
 
 const seo = {
   title: "getd.io/",
-  description:
-    "A free, online API builder that works with CORS. A Postman alternative without the need for client app installation.",
+  sitename: "",
+  description: "A free, online API builder that works with CORS. A Postman alternative without the need for client app installation.",
   url: "https://getd.io/",
-  image: "https://getd.io/image.png"
+  image: "https://getd.io/image.png",
+  locale: "en_US"
+
 };
 
 export default function App() {
@@ -154,34 +156,33 @@ export default function App() {
                 property: "og:description",
                 content: seo.description
               },
-              { property: "og:site_name", content: "European Travel, Inc." },
-              { property: "og:locale", content: "en_US" },
+              { property: "og:site_name", content: seo.sitename },
+              { property: "og:locale", content: seo.locale },
 
-              { property: "twitter:card", content: "" },
-              { property: "twitter:site", content: "@website-username" },
-              { property: "twitter:creator", content: "@individual_account" },
-              { property: "twitter:url", content: "https://example.com/page.html" },
+              { property: "twitter:card", content: seo.twittercard },
+              { property: "twitter:site", content: seo.twittersite },
+              { property: "twitter:creator", content: seo.twittercreator },
+              { property: "twitter:url", content: seo.url },
               { property: "twitter:title", content: seo.title },
               { property: "twitter:description", content: seo.description },
               { property: "twitter:image", content: seo.image },
               { property: "twitter:image:src", content: seo.image },
-              { property: "twitter:image:alt", content: "Alt text for image" },
+              { property: "twitter:image:alt", content: seo.imagealt },
 
-              { property: "fb:app_id", content: "" },
+              { property: "fb:app_id", content: seo.fbappid },
 
               // Facebook instant article
-              { property: "fb:article_style", content: "" },
+              { property: "fb:article_style", content: seo.fbarticlestyle },
 
               { property: "robots", content: "index,follow" },
               { property: "googlebot", content: "index,follow" },
 
-              { property: "google-site-verification", content: "verification_token" },
-              { property: "yandex-verification", content: "verification_token" },
-              { property: "msvalidate.01", content: "verification_token" },
-              { property: "alexaVerifyID", content: "verification_token" },
-              { property: "p:domain_verify", content: "verification_token" },
-              { property: "norton-safeweb-site-verification", content: "verification_token" },
-              { property: "norton-safeweb-site-verification", content: "verification_token" },
+              { property: "google-site-verification", content: seo.googleverif },
+              { property: "yandex-verification", content: seo.yandexverif },
+              { property: "msvalidate.01", content: seo.msverif },
+              { property: "alexaVerifyID", content: seo.alexaverif },
+              { property: "p:domain_verify", content: seo.domainverif },
+              { property: "norton-safeweb-site-verification", content: seo.nortonverif },
 
               { property: "weibo:type", content: "" },
 
@@ -218,7 +219,7 @@ export default function App() {
               
             ]}
             link={[
-              { rel: "canonical", content: "https://example.com/article.html" },
+              { rel: "canonical", content: seo.url },
             ]}
           />
           <Switch>
