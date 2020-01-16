@@ -111,11 +111,17 @@ h1 {
 
 .front-page {
     background: #030717;
+    min-height: 100vh;
     height: 100%;
     background-image: url('./header.png');
-    background-size: 60%;
+    background-size: 80%;
+    padding-bottom:150px;
     background-position: center top;
     background-repeat: no-repeat;
+}
+
+.front-page p {
+    color:white;
 }
 
 .front-page > .container {
@@ -251,10 +257,10 @@ h1 {
     cursor: pointer;
     opacity: 0.99;
     background:linear-gradient(to bottom, rgba(255,0,0,0), rgba(48,117,238,.15));
-    border: 1px solid #4e88f0;
     color:white;
     text-align: center;
     position: relative;
+    border-radius:0px;
 }
 
 .blue-card-perm svg{
@@ -428,15 +434,17 @@ body::-webkit-scrollbar-thumb {
     height: 100%;
     background:none !important;
     position: relative;
+    padding:0px;
 }
 
 .footer-image{
     height: 100%;
     width:100%;
     background-image:url('https://brex.com/static/planet-958a41d34aa478860ee108978fcd26b4.png');
-    background-size:80% 200px;
+    background-size:80% 180px;
     background-repeat: no-repeat;
     opacity: 0.9;
+    opaccity:0.5;
     background-position: center bottom;
     position: absolute;
     z-index: 1;
