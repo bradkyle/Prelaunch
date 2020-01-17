@@ -1,14 +1,15 @@
 {
     "prod": {
         "awscloudformation": {
-            "AuthRoleName": "amplify-prelaunch-prod-93901-authRole",
-            "UnauthRoleArn": "arn:aws:iam::138951340067:role/amplify-prelaunch-prod-93901-unauthRole",
-            "AuthRoleArn": "arn:aws:iam::138951340067:role/amplify-prelaunch-prod-93901-authRole",
-            "Region": "us-west-1",
-            "DeploymentBucketName": "amplify-prelaunch-prod-93901-deployment",
-            "UnauthRoleName": "amplify-prelaunch-prod-93901-unauthRole",
-            "StackName": "amplify-prelaunch-prod-93901",
-            "StackId": "arn:aws:cloudformation:us-west-1:138951340067:stack/amplify-prelaunch-prod-93901/ef9fdc80-36a0-11ea-8bff-06dbdc6016ed"
+            "AuthRoleName": "amplify-prelaunch-prod-123139-authRole",
+            "UnauthRoleArn": "arn:aws:iam::138951340067:role/amplify-prelaunch-prod-123139-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::138951340067:role/amplify-prelaunch-prod-123139-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "amplify-prelaunch-prod-123139-deployment",
+            "UnauthRoleName": "amplify-prelaunch-prod-123139-unauthRole",
+            "StackName": "amplify-prelaunch-prod-123139",
+            "StackId": "arn:aws:cloudformation:us-east-1:138951340067:stack/amplify-prelaunch-prod-123139/659ad510-384b-11ea-851b-12e346dd5d0c",
+            "AmplifyAppId": "d37pwxc4x5w8lm"
         }
     }
 }

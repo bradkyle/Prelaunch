@@ -20,6 +20,7 @@ import { withCookies, Cookies } from 'react-cookie';
 import ReCAPTCHA from "react-google-recaptcha";
 import { useParams} from "react-router";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import ReactGA from 'react-ga';
 
 var faker = require('faker');
 
@@ -41,7 +42,7 @@ class HomePage extends React.Component {
 
   componentDidMount() {
     const { cookies } = this.props;
-
+    ReactGA.pageview('/about/contact-us');
     console.error(this.props);
     
 
@@ -134,6 +135,10 @@ class HomePage extends React.Component {
     console.log("Captcha value:", value);
   }
 
+  handleFocusEvent() {
+
+  }
+
   // TODO we have already sent an email, would you like us to resend
   render() {
   	const { res, invalid, displayErrors } = this.state;
@@ -175,6 +180,7 @@ class HomePage extends React.Component {
               id="email"
               name="email"
               onChange={this.handleEmailChange}
+              onFocus={this.handleFocusEvent}
               value={this.state.email}
               large={true} 
               placeholder="Email address"

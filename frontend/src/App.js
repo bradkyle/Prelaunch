@@ -90,7 +90,7 @@ const publicIp = require('public-ip');
 const { UserAgent } = require("react-useragent");
 var faker = require('faker');
 
-ReactGA.initialize('UA-000000-01');
+ReactGA.initialize('G-YC1JG8F5LM');
 
 const advancedMatching = { em: 'some@email.com' }; // optional, more info: https://developers.facebook.com/docs/facebook-pixel/pixel-with-ads/conversion-tracking#advanced_match
 const options = {
